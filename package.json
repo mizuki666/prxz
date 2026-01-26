@@ -1,0 +1,29 @@
+{
+  "name": "prxz",
+  "version": "1.0.0",
+  "description": "prxzLib/\r ├── src/\r │   ├── index.js\r │   ├── utils/\r │   │   ├── formatValue.js\r │   │   └── formatDate.js\r │   ├── helpers/\r │   │   └── validation.js\r │   └── doc/                    # Документация\r │       ├── index.html         # Главная страница справки\r │       ├── styles.css         # Стили\r │       ├── script.js          # Логика справки\r │       └── content/           # Контент\r │           ├── getting-started.md\r │           ├── api-reference.md\r │           └── examples.md\r ├── dist/\r │   ├── prxz-lib.js\r │   ├── prxz-lib.min.js\r │   └── docs/                  # Собранная документация\r │       └── help.html\r ├── build.js\r ├── package.json\r └── README.md",
+  "main": "run_build.js",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js watch",
+    "clean": "node build.js clean",
+    "start": "node build.js watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizuki666/prxz.git"
+  },
+  "keywords": [],
+  "author": "mizuki666",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mizuki666/prxz/issues"
+  },
+  "homepage": "https://github.com/mizuki666/prxz#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "esbuild": "^0.27.2",
+    "terser": "^5.46.0"
+  }
+}
