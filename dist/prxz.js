@@ -1,15 +1,15 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.0 | 2026-01-26T11:21:14.627Z
+    // Версия 1.0.0 | 2026-01-26T12:43:01.555Z
     // MIT License | Compiled by Bundler
     // Github: https://github.com/mizuki666
-    // Build ID: 19bfa09564a
+    // Build ID: 19bfa543610
     // ====================================
 
 (function() {
         'use strict';
 
 
-// [11:21:14] LOAD: ./utils/formatValue.js
+// [12:43:01] LOAD: ./utils/formatValue.js
 const FormatValue = {
     /**
      * Форматирует число с настройками
@@ -102,7 +102,7 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [11:21:14] LOAD: ./utils/formatDate.js
+// [12:43:01] LOAD: ./utils/formatDate.js
 /**
  * Утилиты для форматирования дат с учетом московского времени (UTC+3)
  */
@@ -276,8 +276,8 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [11:21:14] LOAD: ./components/log/Logger.js
-// [11:21:14] LOAD: ./LoggerStyle.js
+// [12:43:01] LOAD: ./components/log/Logger.js
+// [12:43:01] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -487,171 +487,47 @@ const Logger = {
 // [EOF]: ./components/log/Logger.js
 ;
 
-// [11:21:14] LOAD: ./api/indexVisi.js
-// [11:21:14] LOAD: ./visiology/getMetricsMono
-// [11:21:14] LOAD: ../utils/getAccessToken
-function getAccessToken(p) {
-    try {
-        //console.log(p,'наш keypath') // --- временно keypath
-        //console.log(sessionStorage,'наш sessionStorage') // --- временно sessionStorage
-        const userData = sessionStorage.getItem(p); 
-
-        return userData ? JSON.parse(userData).access_token : null;
-    } catch (error) {
-        console.log('Ошибка при получении токена:', error);
-        return null;
-    }
-}
-// [EOF]: ../utils/getAccessToken
-;
-
-// [11:21:14] LOAD: ../utils/getMonoPath
-function getMonoPath(){
-    let mainHref = window.location.href; // получаем базовую ссылку
-    let url = new URL(mainHref);
-    let domain = url.hostname; // получаем домен
-    let paramsArray = mainHref.split('&');
+// [12:43:01] LOAD: ./api/indexVisi.js
+// [12:43:01] LOAD: ./visiology/getMetricsMono
+/**
+ * Получает метрики мониторинга из одной рабочей области (в которой находится)
+ * 
+ * Функция выполняет сбор и агрегацию данных из различных эндпоинтов одной API для одной рабочей области :
+ * 1. Получает данные шедулеров (расписаний)
+ * 2. Получает данные дашбордов
+ * 3. Обогащает данные шедулеров дополнительной информацией
+ * 4. Группирует датасеты для удобного использования
+ * 5. Проверяет неактивные шедулеры
+ * 
+ * @async
+ * @function getMetricsMono
+ * @returns {Promise<Object>} Объект с агрегированными данными метрик, содержащий:
+ * @property {Array} dataShedulers - Обогащенные данные шедулеров
+ * @property {Array} dataDashboards - Данные дашбордов
+ * @property {Array} dataAll - Сгруппированные датасеты
+ * @property {Array} deadshedulers - Список неактивных шедулеров
+ * 
+ * @throws {Error} Если произошла ошибка при выполнении HTTP-запросов
+ * @example
+ * try {
+ *   const metrics = await getMetricsMono();
+ *   console.log(metrics.dataAll);
+ * } catch (error) {
+ *   console.error('Ошибка получения метрик:', error);
+ * }
+ */
+async function getMetricsMono() {
+    // Получение конфигурационных путей для работы с Mono API
+    const path = getMonoPath();
+    const { shedulersLink, dashesLink, moreInfoLink, keyPath } = path;
     
-    // Найти параметр с workspaceId
-    let workspaceId = paramsArray.find(param => param.includes('workspaceId='));
+    // Получение токена доступа для аутентификации
+    const token = getAccessToken(keyPath);
     
-    if (workspaceId) {
-        // Извлекаем только значение ID
-        workspaceId = workspaceId.split('=')[1];
-        console.log('Найден workspaceId:', workspaceId);
-    } else {
-        console.log('workspaceId не найден');
-    }
-    
-    // формируем ссылки
-    const shedulersLink = 'https://'+ domain +'/data-management-service/api/v1/workspaces/' + workspaceId + '/scheduled-refresh/GetAll'
-    const dashesLink = 'https://'+ domain +'/dashboard-service/api/workspaces/' + workspaceId + '/dashboards'
-    const moreInfoLink = 'https://'+ domain +'/formula-engine/api/v1/workspaces/' + workspaceId + '/datasets/'
-    const workspaceAllLink = 'https://'+ domain + '/workspace-service/api/v1/evaluate-workspaces-with-role'
-    const keyPath = 'oidc.user:https://' + domain + '/keycloak/realms/Visiology:visiology_designer'
-
-    const path ={
-        shedulersLink,
-        dashesLink,
-        moreInfoLink,
-        workspaceAllLink,
-        keyPath
-    }
-    return path    
-}
-// [EOF]: ../utils/getMonoPath
-;
-
-// [11:21:14] LOAD: ../utils/groupDatasets
-function groupDatasets(schedulersWithMoreInfo, dataDashboards){
-    // console.log(schedulersWithMoreInfo,'schedulersWithMoreInfo')
-    // console.log(dataDashboards,'dataDashboards')
-
-    return schedulersWithMoreInfo.map(scheduler => {
-        const relatedDashboards = dataDashboards.filter(
-            dashboard => dashboard.dataset?.datasetId === scheduler.id
-        );
-
-        return {
-            scheduler: scheduler,
-            dashboards: relatedDashboards,
-            dashboardCount: relatedDashboards.length,
-        };
-    });
-}
-// [EOF]: ../utils/groupDatasets
-;
-
-// [11:21:14] LOAD: ../utils/checkDeadShedulers
-function checkerDeadSchedulers(schedulersWithMoreInfo, dataDashboards){
-    const deadSchedulers = schedulersWithMoreInfo.filter(scheduler => {
-        return (
-            scheduler.isEnabled === true &&
-            !dataDashboards.some(dashboard => 
-                dashboard.dataset?.datasetId === scheduler.id
-            )
-        );
-    });
-
-    return {
-        deadSchedulers
-    };
-}
-// [EOF]: ../utils/checkDeadShedulers
-;
-
-// [11:21:14] LOAD: ../utils/getShedulersMore
-async function getShedulersMore (accessToken, dataShedulers) {
-    const schedulersWithMoreInfo = [];
-    // console.log('Внутри getShedulersMore')
-    // console.log(dataShedulers,'dataShedulers') // --- временно
-
-    for (let i = 0; i < dataShedulers.length; i++) {
-        const scheduler = dataShedulers[i];
-        
-        try {
-            if (!scheduler.isEnabled) {
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
-                    name: null,
-                    modifiedTime: null, 
-                    modifiedBy: null
-                });
-                continue;
-            }
-
-            if (i > 0) {
-                await new Promise(resolve => setTimeout(resolve, 20));
-            }
-
-            const moreInfoResponse = await fetch(`${moreInfoLink}${scheduler.id}/model`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (moreInfoResponse.ok) {
-                const moreInfoData = await moreInfoResponse.json();
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
-                    name: moreInfoData.name || null,
-                    modifiedTime: moreInfoData.modifiedTime || null,
-                    modifiedBy: moreInfoData.modifiedBy || null
-                });
-            } else {
-                console.warn(`Не удалось получить дополнительную информацию для шедулера ${scheduler.id}`);
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
-                    name: null,
-                    modifiedTime: null,
-                    modifiedBy: null
-                });
-            }
-        } catch (error) {
-            console.error(`Ошибка при получении информации для шедулера ${scheduler.id}:`, error);
-            schedulersWithMoreInfo.push({
-                ...scheduler,
-                name: null,
-                modifiedTime: null,
-                modifiedBy: null
-            });
-        }
-    }
-
-    return schedulersWithMoreInfo;
-}
-// [EOF]: ../utils/getShedulersMore
-;
-
-async function getMetricsMono(){
-    const path = getMonoPath()
-    const {shedulersLink, dashesLink, moreInfoLink, keyPath} = path
-    //console.log(keyPath) // --- временно убрать
-    const token = getAccessToken(keyPath)
-    
+    // Параллельное выполнение запросов для оптимизации времени выполнения
+    // Используем Promise.all для одновременного получения данных шедулеров и дашбордов
     const [responseShedulers, responseDashboards, responseMetrics] = await Promise.all([
+        // Запрос данных шедулеров (расписаний)
         fetch(shedulersLink, {
             method: 'GET',
             headers: {
@@ -659,12 +535,14 @@ async function getMetricsMono(){
                 'Content-Type': 'application/json'
             }
         }).then(response => {
+            // Валидация ответа сервера
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}, name: responseShedulers`);
             }
             return response;
         }),
         
+        // Запрос данных дашбордов
         fetch(dashesLink, {
             method: 'GET',
             headers: {
@@ -672,80 +550,212 @@ async function getMetricsMono(){
                 'Content-Type': 'application/json'
             }
         }).then(response => {
+            // Валидация ответа сервера
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}, name: responseDashboards`);
             }
-            return response; 
+            return response;
         }),
+        // Примечание: responseMetrics в текущей реализации всегда null,
+        // так как соответствующий fetch запрос отсутствует
+        // Это может быть задел на будущую функциональность
     ]);
 
+    // Параллельный парсинг JSON ответов
     const [dataShedulers, dataDashboards] = await Promise.all([
         responseShedulers.json(),
         responseDashboards.json(),
+        // responseMetrics всегда null в текущей реализации
         responseMetrics ? responseMetrics.json() : Promise.resolve(null)
     ]);
-    // console.log('---СТАРТ getShedulersMore')
-    const schedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
 
-    // console.log('---СТАРТ groupDatasets')
-    const groupedData = groupDatasets(schedulersWithMoreInfo, dataDashboards);
+    // Обогащение данных шедулеров дополнительной информацией
+    // Это позволяет получить более полную картину о каждом шедулере
+    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
+
+    // Группировка датасетов для структурированного представления данных
+    // Объединяет данные шедулеров и дашбордов в логические группы
+    const groupedData = groupDatasets(shedulersWithMoreInfo, dataDashboards);
     
-    // console.log('---СТАРТ checkerDeadSchedulers')
-    const deadSchedulers = checkerDeadSchedulers(schedulersWithMoreInfo, dataDashboards);
+    // Проверка шедулеров на активность
+    // Выявляет неработающие или "мертвые" шедулеры для дальнейшего анализа
+    const deadshedulers = checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards);
 
+    // Формирование финального объекта с агрегированными данными
     const dataset = {
-        dataShedulers: schedulersWithMoreInfo,
+        // Обогащенные данные шедулеров
+        dataShedulers: shedulersWithMoreInfo,
+        // Данные дашбордов
         dataDashboards: dataDashboards,
+        // Сгруппированные данные для удобного анализа
         dataAll: groupedData,
-        deadSchedulers: deadSchedulers
-    }
+        // Список неактивных шедулеров для мониторинга проблем
+        deadshedulers: deadshedulers
+    };
 
-    return dataset
+    return dataset;
 }
+
+;
 // [EOF]: ./visiology/getMetricsMono
 
 
-// [11:21:14] LOAD: ./utils/getAccessToken
+// [12:43:01] LOAD: ./utils/getAccessToken
+/**
+ * Извлекает access token из sessionStorage по указанному ключу
+ * 
+ * Функция безопасно получает JWT токен доступа из хранилища браузера.
+ * Токен используется для аутентификации запросов к защищенным API эндпоинтам.
+ * 
+ * @function getAccessToken
+ * @param {string} p - Ключ для поиска данных в sessionStorage
+ * @returns {string|null} Access token или null, если:
+ *                        1. Токен не найден
+ *                        2. Произошла ошибка парсинга
+ *                        3. Структура данных не соответствует ожидаемой
+ * 
+ * @throws Не выбрасывает исключения наружу, ошибки обрабатываются внутри
+ * @sideeffect Выводит ошибки в консоль при проблемах с доступом или парсингомв
+ * 
+ * @example
+ * // sessionStorage содержит: { "user_session": "{\"access_token\":\"eyJhbGciOiJ...\"}" }
+ * const token = getAccessToken('user_session');
+ * // token = "eyJhbGciOiJ..."
+ * 
+ * @example
+ * // Если ключ не существует или данные некорректны
+ * const token = getAccessToken('non_existent_key');
+ * // token = null
+ * // В консоли: "Ошибка при получении токена: ..."
+ * 
+ * @note
+ * - Использует sessionStorage (данные очищаются при закрытии вкладки)
+ * - Ожидает данные в формате JSON с полем access_token
+ * - НЕ валидирует срок действия токена
+ * - НЕ проверяет структуру токена (JWT)
+ * 
+ * @security
+ * - Не хранит токен в глобальных переменных
+ * - Использует безопасный парсинг JSON с try/catch
+ * - Ограничивает область видимости токена сессией браузера
+ * - Не логирует сам токен (только ошибки доступа)
+ */
 function getAccessToken(p) {
     try {
-        //console.log(p,'наш keypath') // --- временно keypath
-        //console.log(sessionStorage,'наш sessionStorage') // --- временно sessionStorage
-        const userData = sessionStorage.getItem(p); 
+        // Временные логи для отладки (раскомментировать при необходимости)
+        // console.log(p, 'наш keypath');
+        // console.log(sessionStorage, 'наш sessionStorage');
+        
+        // Получаем строку данных из sessionStorage по ключу
+        const userData = sessionStorage.getItem(p);
 
-        return userData ? JSON.parse(userData).access_token : null;
+        // Проверяем наличие данных и парсим JSON
+        // Используем тернарный оператор для краткости
+        return userData 
+            ? JSON.parse(userData).access_token // Извлекаем access_token из распарсенного объекта
+            : null; // Возвращаем null если данных нет
+        
     } catch (error) {
+        // Логируем ошибку для диагностики, но не прерываем выполнение программы
+        // Типичные ошибки:
+        // 1. SyntaxError: Некорректный JSON в sessionStorage
+        // 2. TypeError: Отсутствует поле access_token после парсинга
+        // 3. SecurityError: Доступ к sessionStorage заблокирован (например, в iframe)
         console.log('Ошибка при получении токена:', error);
+        
+        // fallback
         return null;
     }
 }
+
+;
 // [EOF]: ./utils/getAccessToken
 
 
-// [11:21:14] LOAD: ./utils/getShedulersMore
-async function getShedulersMore (accessToken, dataShedulers) {
-    const schedulersWithMoreInfo = [];
-    // console.log('Внутри getShedulersMore')
-    // console.log(dataShedulers,'dataShedulers') // --- временно
-
+// [12:43:01] LOAD: ./utils/getShedulersMore
+/**
+ * Обогащает данные шедулеров дополнительной информацией из API
+ * 
+ * Функция последовательно запрашивает детальную информацию для каждого шедулера,
+ * добавляя поля name, modifiedTime и modifiedBy. Для исключения перегрузки API
+ * добавляет задержки между запросами.
+ * 
+ * @async
+ * @function getShedulersMore
+ * @param {string} accessToken - JWT токен для авторизации запросов к API
+ * @param {Array} dataShedulers - Массив шедулеров для обогащения
+ * @param {Object} dataShedulers[] - Объект шедулера
+ * @param {string} dataShedulers[].id - Уникальный идентификатор шедулера
+ * @param {boolean} dataShedulers[].isEnabled - Флаг активности шедулера
+ * @param {string} moreInfoLink - Базовый URL для запросов детальной информации (должен быть определен в области видимости)
+ * 
+ * @returns {Promise<Array>} Массив обогащенных данных шедулеров с дополнительными полями:
+ * @returns {Object} returns[] - Обогащенный объект шедулера
+ * @returns {string|null} returns[].name - Название шедулера
+ * @returns {string|null} returns[].modifiedTime - Время последнего изменения
+ * @returns {string|null} returns[].modifiedBy - Идентификатор пользователя, внесшего изменения
+ * 
+ * @throws Не выбрасывает исключения наружу, ошибки обрабатываются внутри и логируются
+ * 
+ * @example
+ * const accessToken = 'eyJhbGciOiJ...';
+ * const sheddulers = [{ id: 'sched-1', isEnabled: true }];
+ * const enriched = await getShedulersMore(accessToken, sheddulers);
+ * // enriched = [{ id: 'sched-1', isEnabled: true, name: 'Daily Report', ... }]
+ * 
+ * @algorithm
+ * 1. Инициализация результирующего массива
+ * 2. Последовательная обработка каждого шедулера:
+ *    a. Пропуск запроса для отключенных шедулеров
+ *    b. Добавление задержки между запросами (кроме первого)
+ *    c. Выполнение запроса к API
+ *    d. Обработка успешного ответа
+ *    e. Обработка ошибок и HTTP ошибок
+ * 3. Возврат обогащенных данных
+ * 
+ * @performance
+ * - Линейная сложность O(n), где n - количество шедулеров
+ * - Общее время выполнения ≈ (n-1) * 20ms + n * время_запроса
+ * - Использует rate limiting (задержки) для защиты API
+ * 
+ * @errorHandling
+ * - Для отключенных шедулеров сразу возвращает null значения
+ * - При HTTP ошибках возвращает null значения и логирует предупреждение
+ * - При сетевых ошибках возвращает null значения и логирует ошибку
+ * - Не прерывает выполнение при ошибках отдельных шедулеров
+ */
+async function getShedulersMore(accessToken, dataShedulers) {
+    // Инициализация массива для хранения обогащенных данных
+    const shedulersWithMoreInfo = [];
+    
+    // Временные логи для отладки (раскомментировать при необходимости)
+    // console.log('Внутри getShedulersMore');
+    // console.log(dataShedulers, 'dataShedulers');
+    
+    // Последовательно обрабатываем каждый шедулер
     for (let i = 0; i < dataShedulers.length; i++) {
-        const scheduler = dataShedulers[i];
+        const sheduler = dataShedulers[i];
         
         try {
-            if (!scheduler.isEnabled) {
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
-                    name: null,
+            // Обработка отключенных шедулеров - пропускаем запрос к API
+            if (!sheduler.isEnabled) {
+                shedulersWithMoreInfo.push({
+                    ...sheduler, // Копируем все существующие поля
+                    name: null,        // Дополнительные поля заполняем null
                     modifiedTime: null, 
                     modifiedBy: null
                 });
-                continue;
+                continue; // Переходим к следующему шедулеру
             }
 
+            // Rate limiting: добавляем задержку между запросами, начиная со второго
+            // Защищает API от перегрузки и соблюдает ограничения rate limit
             if (i > 0) {
-                await new Promise(resolve => setTimeout(resolve, 20));
+                await new Promise(resolve => setTimeout(resolve, 20)); // 20ms задержка
             }
 
-            const moreInfoResponse = await fetch(`${moreInfoLink}${scheduler.id}/model`, {
+            // Выполняем запрос к API для получения детальной информации
+            const moreInfoResponse = await fetch(`${moreInfoLink}${sheduler.id}/model`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -753,27 +763,36 @@ async function getShedulersMore (accessToken, dataShedulers) {
                 }
             });
 
+            // Обработка успешного ответа
             if (moreInfoResponse.ok) {
                 const moreInfoData = await moreInfoResponse.json();
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
-                    name: moreInfoData.name || null,
-                    modifiedTime: moreInfoData.modifiedTime || null,
-                    modifiedBy: moreInfoData.modifiedBy || null
+                
+                // Добавляем обогащенный шедулер в результат
+                shedulersWithMoreInfo.push({
+                    ...sheduler, // Сохраняем оригинальные данные
+                    name: moreInfoData.name || null,             // Название из API или null
+                    modifiedTime: moreInfoData.modifiedTime || null, // Время изменения
+                    modifiedBy: moreInfoData.modifiedBy || null     // Автор изменений
                 });
             } else {
-                console.warn(`Не удалось получить дополнительную информацию для шедулера ${scheduler.id}`);
-                schedulersWithMoreInfo.push({
-                    ...scheduler,
+                // Обработка HTTP ошибок (4xx, 5xx)
+                console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+                
+                // Добавляем шедулер с null значениями при ошибке API
+                shedulersWithMoreInfo.push({
+                    ...sheduler,
                     name: null,
                     modifiedTime: null,
                     modifiedBy: null
                 });
             }
         } catch (error) {
-            console.error(`Ошибка при получении информации для шедулера ${scheduler.id}:`, error);
-            schedulersWithMoreInfo.push({
-                ...scheduler,
+            // Обработка сетевых ошибок и исключений
+            console.error(`Ошибка при получении информации для шедулера ${sheduler.id}:`, error);
+            
+            // Добавляем шедулер с null значениями при любой ошибке
+            shedulersWithMoreInfo.push({
+                ...sheduler,
                 name: null,
                 modifiedTime: null,
                 modifiedBy: null
@@ -781,28 +800,69 @@ async function getShedulersMore (accessToken, dataShedulers) {
         }
     }
 
-    return schedulersWithMoreInfo;
+    return shedulersWithMoreInfo;
 }
+
+;
 // [EOF]: ./utils/getShedulersMore
 
 
-// [11:21:14] LOAD: ./utils/groupDatasets
-function groupDatasets(schedulersWithMoreInfo, dataDashboards){
-    // console.log(schedulersWithMoreInfo,'schedulersWithMoreInfo')
-    // console.log(dataDashboards,'dataDashboards')
-
-    return schedulersWithMoreInfo.map(scheduler => {
-        const relatedDashboards = dataDashboards.filter(
-            dashboard => dashboard.dataset?.datasetId === scheduler.id
+// [12:43:01] LOAD: ./utils/groupDatasets
+/**
+ * Группирует шедулеры с привязанными к ним дашбордами
+ * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
+ * 
+ * @function groupDatasets
+ * @param {Object[]} shedulersWithMoreInfo - Массив объектов шедулеров
+ * @param {string} shedulersWithMoreInfo[].id - Уникальный идентификатор шедулера
+ * @param {Object[]} dataDashboards - Массив объектов дашбордов
+ * @param {Object} [dataDashboards[].dataset] - Опциональный объект датасета
+ * @param {string} [dataDashboards[].dataset.datasetId] - ID связанного шедулера
+ * @returns {Object[]} Массив объектов сгруппированных данных
+ * @returns {Object} returns[].sheduler - Исходный объект шедулера
+ * @returns {Object[]} returns[].dashboards - Массив связанных дашбордов
+ * @returns {number} returns[].dashboardCount - Количество связанных дашбордов
+ * 
+ * @example
+ * // Шедулер с двумя дашбордами
+ * const sheduler = { id: 's1', name: 'Daily Sync' };
+ * const dashboards = [
+ *   { id: 'd1', dataset: { datasetId: 's1' } },
+ *   { id: 'd2', dataset: { datasetId: 's1' } }
+ * ];
+ * const result = groupDatasets([sheduler], dashboards);
+ * // result[0].dashboardCount === 2
+ * 
+ * @example
+ * // Шедулер без дашбордов
+ * const result = groupDatasets([{ id: 's2' }], []);
+ * // result[0].dashboards === []
+ * // result[0].dashboardCount === 0
+ * 
+ * @complexity O(n*m) где n - количество шедулеров, m - количество дашбордов
+ * @performance Используйте с осторожностью при больших объемах данных (>1000 элементов)
+ * @sideeffect Чистая функция, не изменяет входные данные
+ */
+function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
+    // Раскомментировать для отладки
+    // console.log('Шедулеры:', shedulersWithMoreInfo);
+    // console.log('Дашборды:', dataDashboards);
+    
+    return shedulersWithMoreInfo.map(sheduler => {
+        // Находим все дашборды, ссылающиеся на текущий шедулер
+        const relatedDashboards = dataDashboards.filter(dashboard => 
+            dashboard.dataset?.datasetId === sheduler.id
         );
 
         return {
-            scheduler: scheduler,
-            dashboards: relatedDashboards,
-            dashboardCount: relatedDashboards.length,
+            sheduler,                    // Исходный шедулер
+            dashboards: relatedDashboards, // Привязанные дашборды
+            dashboardCount: relatedDashboards.length // Количество для быстрого доступа
         };
     });
 }
+
+;
 // [EOF]: ./utils/groupDatasets
 
 

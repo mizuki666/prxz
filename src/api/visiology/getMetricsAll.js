@@ -1,7 +1,7 @@
 import { getAccessToken } from "../utils/getAccessToken";
 import { getAnyPath } from "../utils/getMonoPath";
 import { groupDatasets } from "../utils/groupDatasets";
-import { checkerDeadSchedulers } from "../utils/checkDeadShedulers";
+import { checkerDeadshedulers } from "../utils/checkDeadShedulers";
 import { getShedulersMore } from "../utils/getShedulersMore";
 
 async function getMetricsAll(){
@@ -44,19 +44,19 @@ async function getMetricsAll(){
         responseMetrics ? responseMetrics.json() : Promise.resolve(null)
     ]);
     // console.log('---СТАРТ getShedulersMore')
-    const schedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
+    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
 
     // console.log('---СТАРТ groupDatasets')
-    const groupedData = groupDatasets(schedulersWithMoreInfo, dataDashboards);
+    const groupedData = groupDatasets(shedulersWithMoreInfo, dataDashboards);
     
-    // console.log('---СТАРТ checkerDeadSchedulers')
-    const deadSchedulers = checkerDeadSchedulers(schedulersWithMoreInfo, dataDashboards);
+    // console.log('---СТАРТ checkerDeadshedulers')
+    const deadshedulers = checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards);
 
     const dataset = {
-        dataShedulers: schedulersWithMoreInfo,
+        dataShedulers: shedulersWithMoreInfo,
         dataDashboards: dataDashboards,
         dataAll: groupedData,
-        deadSchedulers: deadSchedulers
+        deadshedulers: deadshedulers
     }
 
     return dataset
