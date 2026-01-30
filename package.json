@@ -1,0 +1,33 @@
+{
+  "name": "prxz",
+  "version": "1.0.1",
+  "description": "lib for visiology 3x",
+  "main": "run_build.js",
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node build.js watch",
+    "clean": "node build.js clean",
+    "start": "node build.js watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mizuki666/prxz.git"
+  },
+  "keywords": [],
+  "author": "mizuki666",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mizuki666/prxz/issues"
+  },
+  "homepage": "https://github.com/mizuki666/prxz#readme",
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "esbuild": "^0.27.2",
+    "terser": "^5.46.0"
+  },
+  "devDependencies": {
+    "cssnano": "^7.1.2",
+    "postcss": "^8.5.6"
+  }
+}
