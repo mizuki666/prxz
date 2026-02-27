@@ -9,8 +9,8 @@
     "watch": "node build.js watch",
     "clean": "node build.js clean",
     "start": "node build.js watch",
-    "next": "node next_test/run.js",
-    "run next": "node next_test/run.js"
+    "react": "npm run dev --prefix react_test",
+    "run react": "npm run dev --prefix react_test"
   },
   "repository": {
     "type": "git",

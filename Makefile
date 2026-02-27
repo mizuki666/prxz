@@ -1,7 +1,7 @@
-# Быстрый запуск теста prxz.min.js:  make run next   или   make run-next
-.PHONY: next run-next
+# Песочница prxz.min.js (React + Vite):  make run react   или   make run-react
+.PHONY: react run-react
 
-next:
-	cd next_test && node run.js
+react:
+	cd react_test && npm run dev
 
-run-next: next
+run-react: react
