@@ -8,7 +8,9 @@
     "build": "node build.js",
     "watch": "node build.js watch",
     "clean": "node build.js clean",
-    "start": "node build.js watch"
+    "start": "node build.js watch",
+    "next": "node next_test/run.js",
+    "run next": "node next_test/run.js"
   },
   "repository": {
     "type": "git",
