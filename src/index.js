@@ -1,6 +1,7 @@
 import { FormatValue } from './utils/formatValue.js';
 import { FormatDate } from './utils/formatDate.js';
 import { Logger } from './components/log/Logger.js';
+
 import visi from './api/indexVisi.js';
 
 
@@ -13,6 +14,9 @@ const prxz = {
     frm: {
         v: FormatValue,
         d: FormatDate,
+    },
+    func: {
+        FilterReplaceText,
     }
 };
 
