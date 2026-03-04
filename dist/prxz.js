@@ -1,17 +1,17 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.1 | 2026-03-04T11:01:03.140Z
+    // Версия 1.0.1 | 2026-03-04T14:12:34.624Z
     // MIT License | Compiled by Bundler
     // Author: mizuki666
     // Repository: https://github.com/mizuki666/prxz
-    // Build ID: 19cb8822602
+    // Build ID: 19cb9317ea3
     // =============================================
 
 (function() {
         'use strict';
 
 
-// [11:01:03] LOAD: ./utils/formatValue.js
-// [11:01:03] LOAD: ./helpers/values/validators.js
+// [14:12:34] LOAD: ./utils/formatValue.js
+// [14:12:34] LOAD: ./helpers/values/validators.js
 // validators.js
 const Validators = {
     isEmptyValue: (value) => {
@@ -53,7 +53,7 @@ const Validators = {
 // [EOF]: ./helpers/values/validators.js
 ;
 
-// [11:01:03] LOAD: ./helpers/values/parsers.js
+// [14:12:34] LOAD: ./helpers/values/parsers.js
 // parsers.js
 const Parsers = {
 
@@ -127,7 +127,7 @@ const Parsers = {
 // [EOF]: ./helpers/values/parsers.js
 ;
 
-// [11:01:03] LOAD: ./helpers/values/formatters.js
+// [14:12:34] LOAD: ./helpers/values/formatters.js
 // formatters.js
 const Formatters = {
     narrowNoBreakSpace: '\u202F',
@@ -605,8 +605,8 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [11:01:03] LOAD: ./utils/formatDate.js
-// [11:01:03] LOAD: ./helpers/date/parse-date.js
+// [14:12:34] LOAD: ./utils/formatDate.js
+// [14:12:34] LOAD: ./helpers/date/parse-date.js
 /**
  * Парсит дату и проверяет валидность
  * @param {string|Date} dateInput - Дата для парсинга
@@ -625,7 +625,7 @@ function parseDate(dateInput) {
 // [EOF]: ./helpers/date/parse-date.js
 ;
 
-// [11:01:03] LOAD: ./helpers/date/convert-time.js
+// [14:12:34] LOAD: ./helpers/date/convert-time.js
 /**
  * Конвертирует дату в московское время (UTC+3)
  * @param {Date} date - Исходная дата
@@ -638,7 +638,7 @@ function convertToMoscowTime(date) {
 // [EOF]: ./helpers/date/convert-time.js
 ;
 
-// [11:01:03] LOAD: ./helpers/date/localization.js
+// [14:12:34] LOAD: ./helpers/date/localization.js
 /**
  * Возвращает русские названия месяцев и дней недели
  * @returns {Object} Локализованные строки
@@ -662,7 +662,7 @@ function getLocalizedStrings() {
 // [EOF]: ./helpers/date/localization.js
 ;
 
-// [11:01:03] LOAD: ./helpers/date/apply-format.js
+// [14:12:34] LOAD: ./helpers/date/apply-format.js
 /**
  * Применяет формат к дате
  * @param {Date} date - Дата для форматирования
@@ -796,8 +796,8 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [11:01:03] LOAD: ./components/log/Logger.js
-// [11:01:03] LOAD: ./LoggerStyle.js
+// [14:12:34] LOAD: ./components/log/Logger.js
+// [14:12:34] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -1036,7 +1036,7 @@ const Logger = {
 // [EOF]: ./components/log/Logger.js
 ;
 
-// [11:01:03] LOAD: ./utils/filterText.js
+// [14:12:34] LOAD: ./utils/filterText.js
 /**
  * Форматирует дату/время в указанный формат
  * @param {string|Date} dateString - Дата для форматирования
@@ -1068,8 +1068,7 @@ function FilterReplaceText(time,text,id) {
 // [EOF]: ./utils/filterText.js
 ;
 
-// [11:01:03] LOAD: ./components/slider/Slider.js
-// [11:01:03] LOAD: ../../utils/genId.js
+// [14:12:34] LOAD: ./utils/genId.js
 function genId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -1077,7 +1076,11 @@ function genId() {
         return v.toString(16);
     });
 }
-// [EOF]: ../../utils/genId.js
+// [EOF]: ./utils/genId.js
+;
+
+// [14:12:34] LOAD: ./components/slider/Slider.js
+// [14:12:34] SKIP (already loaded): ../../utils/genId.js
 ;
 
 const EASE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -1402,8 +1405,8 @@ function initSlider(sldID, dataset, ease) {
 ;
 
 
-// [11:01:03] LOAD: ./api/indexVisi.js
-// [11:01:03] LOAD: ./visiology/getMetricsMono
+// [14:12:34] LOAD: ./api/indexVisi.js
+// [14:12:34] LOAD: ./visiology/getMetricsMono
 /**
  * Получает метрики мониторинга из одной рабочей области (в которой находится)
  * 
@@ -1433,7 +1436,7 @@ function initSlider(sldID, dataset, ease) {
  */
 
 
-// [11:01:03] LOAD: ../utils/getAccessToken
+// [14:12:34] LOAD: ../utils/getAccessToken
 /**
  * Извлекает access token из sessionStorage по указанному ключу
  * 
@@ -1505,7 +1508,7 @@ function getAccessToken(p) {
 // [EOF]: ../utils/getAccessToken
 ;
 
-// [11:01:03] LOAD: ../utils/getMonoPath
+// [14:12:34] LOAD: ../utils/getMonoPath
 /**
  * Формирует URL-адреса для доступа к API на основе текущего домена и workspaceId
  * 
@@ -1606,7 +1609,7 @@ function getMonoPath() {
 // [EOF]: ../utils/getMonoPath
 ;
 
-// [11:01:03] LOAD: ../utils/groupDatasets
+// [14:12:34] LOAD: ../utils/groupDatasets
 /**
  * Группирует шедулеры с привязанными к ним дашбордами
  * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
@@ -1665,7 +1668,7 @@ function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/groupDatasets
 ;
 
-// [11:01:03] LOAD: ../utils/checkDeadShedulers
+// [14:12:34] LOAD: ../utils/checkDeadShedulers
 /**
  * Проверяет и идентифицирует "мертвые" шедулеры (неработающие планировщики)
  * 
@@ -1732,7 +1735,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/checkDeadShedulers
 ;
 
-// [11:01:03] LOAD: ../utils/getShedulersMore
+// [14:12:34] LOAD: ../utils/getShedulersMore
 /**
  * Обогащает данные шедулеров дополнительной информацией из API
  * 
@@ -1950,11 +1953,11 @@ async function getMetricsMono() {
 ;
 // [EOF]: ./visiology/getMetricsMono
 
-// [11:01:03] SKIP (already loaded): ./utils/getAccessToken
+// [14:12:34] SKIP (already loaded): ./utils/getAccessToken
 
-// [11:01:03] SKIP (already loaded): ./utils/getShedulersMore
+// [14:12:34] SKIP (already loaded): ./utils/getShedulersMore
 
-// [11:01:03] SKIP (already loaded): ./utils/groupDatasets
+// [14:12:34] SKIP (already loaded): ./utils/groupDatasets
 
 
 const visi = {
@@ -1984,7 +1987,8 @@ const prxz = {
     },
     func: {
         other: {
-            FilterReplaceText
+            FilterReplaceText,
+            genId
         },
     },
     comp: {

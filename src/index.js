@@ -2,6 +2,7 @@ import { FormatValue } from './utils/formatValue.js';
 import { FormatDate } from './utils/formatDate.js';
 import { Logger } from './components/log/Logger.js';
 import { FilterReplaceText } from './utils/filterText.js';
+import { genId } from './utils/genId.js';
 import { renderSlider } from './components/slider/Slider.js';
 
 import visi from './api/indexVisi.js';
@@ -18,7 +19,8 @@ const prxz = {
     },
     func: {
         other: {
-            FilterReplaceText
+            FilterReplaceText,
+            genId
         },
     },
     comp: {
