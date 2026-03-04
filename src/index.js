@@ -1,6 +1,8 @@
 import { FormatValue } from './utils/formatValue.js';
 import { FormatDate } from './utils/formatDate.js';
+import { CustomFunctions } from './utils/customFunctions.js';
 import { Logger } from './components/log/Logger.js';
+
 
 import visi from './api/indexVisi.js';
 
@@ -16,7 +18,7 @@ const prxz = {
         d: FormatDate,
     },
     func: {
-        FilterReplaceText,
+        other: CustomFunctions
     }
 };
 

@@ -1,17 +1,17 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.1 | 2026-02-27T09:33:08.196Z
+    // Версия 1.0.1 | 2026-03-04T10:03:49.657Z
     // MIT License | Compiled by Bundler
     // Author: mizuki666
     // Repository: https://github.com/mizuki666/prxz
-    // Build ID: 19c9e71dcd1
+    // Build ID: 19cb84dc202
     // =============================================
 
 (function() {
         'use strict';
 
 
-// [09:33:08] LOAD: ./utils/formatValue.js
-// [09:33:08] LOAD: ./helpers/values/validators.js
+// [10:03:49] LOAD: ./utils/formatValue.js
+// [10:03:49] LOAD: ./helpers/values/validators.js
 // validators.js
 const Validators = {
     isEmptyValue: (value) => {
@@ -53,7 +53,7 @@ const Validators = {
 // [EOF]: ./helpers/values/validators.js
 ;
 
-// [09:33:08] LOAD: ./helpers/values/parsers.js
+// [10:03:49] LOAD: ./helpers/values/parsers.js
 // parsers.js
 const Parsers = {
 
@@ -127,7 +127,7 @@ const Parsers = {
 // [EOF]: ./helpers/values/parsers.js
 ;
 
-// [09:33:08] LOAD: ./helpers/values/formatters.js
+// [10:03:49] LOAD: ./helpers/values/formatters.js
 // formatters.js
 const Formatters = {
     narrowNoBreakSpace: '\u202F',
@@ -605,8 +605,8 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [09:33:08] LOAD: ./utils/formatDate.js
-// [09:33:08] LOAD: ./helpers/date/parse-date.js
+// [10:03:49] LOAD: ./utils/formatDate.js
+// [10:03:49] LOAD: ./helpers/date/parse-date.js
 /**
  * Парсит дату и проверяет валидность
  * @param {string|Date} dateInput - Дата для парсинга
@@ -625,7 +625,7 @@ function parseDate(dateInput) {
 // [EOF]: ./helpers/date/parse-date.js
 ;
 
-// [09:33:08] LOAD: ./helpers/date/convert-time.js
+// [10:03:49] LOAD: ./helpers/date/convert-time.js
 /**
  * Конвертирует дату в московское время (UTC+3)
  * @param {Date} date - Исходная дата
@@ -638,7 +638,7 @@ function convertToMoscowTime(date) {
 // [EOF]: ./helpers/date/convert-time.js
 ;
 
-// [09:33:08] LOAD: ./helpers/date/localization.js
+// [10:03:49] LOAD: ./helpers/date/localization.js
 /**
  * Возвращает русские названия месяцев и дней недели
  * @returns {Object} Локализованные строки
@@ -662,7 +662,7 @@ function getLocalizedStrings() {
 // [EOF]: ./helpers/date/localization.js
 ;
 
-// [09:33:08] LOAD: ./helpers/date/apply-format.js
+// [10:03:49] LOAD: ./helpers/date/apply-format.js
 /**
  * Применяет формат к дате
  * @param {Date} date - Дата для форматирования
@@ -796,8 +796,52 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [09:33:08] LOAD: ./components/log/Logger.js
-// [09:33:08] LOAD: ./LoggerStyle.js
+// [10:03:49] LOAD: ./utils/customFunctions.js
+const CustomFunctions = {
+    /**
+     * Подменяет заголовок фильтра с текстом «Все» на заданный текст через указанную задержку.
+     * Используется для отложенного обновления UI после применения фильтра.
+     *
+     * @param {number} time - Задержка в мс перед заменой текста (для синхронизации с рендером).
+     * @param {string} text - Новый текст заголовка фильтра.
+     * @param {string} id - ID контейнера элемента (должен содержать .rb-filter-header-text).
+     *
+     * @example
+     * FilterReplaceText(100, 'Регион', 'filter-container-id');
+     */
+    FilterReplaceText(time,text,id) {
+        setTimeout(() => {
+                const container = document.getElementById(id)
+                const textElement = container.querySelector('.rb-filter-header-text')
+                const textContent = textElement.textContent
+                
+                if(textContent === 'Все'){
+                    textElement.textContent = text
+                }
+        }, time)
+    },
+    /**
+     * Генерирует псевдо-UUID v4: строку вида xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+     * (версия 4 в позиции 13, вариант в позиции 17 — по спецификации RFC 4122).
+     *
+     * @returns {string} Строка из 36 символов (32 hex + 4 дефиса).
+     *
+     * @example
+     * genId(); // "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d"
+     */
+    genId() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+};
+// [EOF]: ./utils/customFunctions.js
+;
+
+// [10:03:49] LOAD: ./components/log/Logger.js
+// [10:03:49] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -1037,8 +1081,9 @@ const Logger = {
 ;
 
 
-// [09:33:08] LOAD: ./api/indexVisi.js
-// [09:33:08] LOAD: ./visiology/getMetricsMono
+
+// [10:03:49] LOAD: ./api/indexVisi.js
+// [10:03:49] LOAD: ./visiology/getMetricsMono
 /**
  * Получает метрики мониторинга из одной рабочей области (в которой находится)
  * 
@@ -1068,7 +1113,7 @@ const Logger = {
  */
 
 
-// [09:33:08] LOAD: ../utils/getAccessToken
+// [10:03:49] LOAD: ../utils/getAccessToken
 /**
  * Извлекает access token из sessionStorage по указанному ключу
  * 
@@ -1140,7 +1185,7 @@ function getAccessToken(p) {
 // [EOF]: ../utils/getAccessToken
 ;
 
-// [09:33:08] LOAD: ../utils/getMonoPath
+// [10:03:49] LOAD: ../utils/getMonoPath
 /**
  * Формирует URL-адреса для доступа к API на основе текущего домена и workspaceId
  * 
@@ -1241,7 +1286,7 @@ function getMonoPath() {
 // [EOF]: ../utils/getMonoPath
 ;
 
-// [09:33:08] LOAD: ../utils/groupDatasets
+// [10:03:49] LOAD: ../utils/groupDatasets
 /**
  * Группирует шедулеры с привязанными к ним дашбордами
  * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
@@ -1300,7 +1345,7 @@ function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/groupDatasets
 ;
 
-// [09:33:08] LOAD: ../utils/checkDeadShedulers
+// [10:03:49] LOAD: ../utils/checkDeadShedulers
 /**
  * Проверяет и идентифицирует "мертвые" шедулеры (неработающие планировщики)
  * 
@@ -1367,7 +1412,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/checkDeadShedulers
 ;
 
-// [09:33:08] LOAD: ../utils/getShedulersMore
+// [10:03:49] LOAD: ../utils/getShedulersMore
 /**
  * Обогащает данные шедулеров дополнительной информацией из API
  * 
@@ -1585,11 +1630,11 @@ async function getMetricsMono() {
 ;
 // [EOF]: ./visiology/getMetricsMono
 
-// [09:33:08] SKIP (already loaded): ./utils/getAccessToken
+// [10:03:49] SKIP (already loaded): ./utils/getAccessToken
 
-// [09:33:08] SKIP (already loaded): ./utils/getShedulersMore
+// [10:03:49] SKIP (already loaded): ./utils/getShedulersMore
 
-// [09:33:08] SKIP (already loaded): ./utils/groupDatasets
+// [10:03:49] SKIP (already loaded): ./utils/groupDatasets
 
 
 const visi = {
@@ -1619,7 +1664,7 @@ const prxz = {
         d: FormatDate,
     },
     func: {
-        FilterReplaceText,
+        other: CustomFunctions
     }
 };
 

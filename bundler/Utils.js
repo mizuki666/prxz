@@ -22,6 +22,7 @@ export class Utils {
                     toplevel: true,           // манглить имена глобально
                     keep_fnames: false,       // не сохранять имена функций
                     properties: false,        // не манглить свойства объектов
+                    reserved: ['time', 'text', 'id'],
                 },
                 format: {
                     beautify: false,
