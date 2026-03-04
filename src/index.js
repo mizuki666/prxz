@@ -1,6 +1,5 @@
 import { FormatValue } from './utils/formatValue.js';
 import { FormatDate } from './utils/formatDate.js';
-import { CustomFunctions } from './utils/customFunctions.js';
 import { Logger } from './components/log/Logger.js';
 import { FilterReplaceText } from './utils/filterText.js';
 import { renderSlider } from './components/slider/Slider.js';
@@ -26,8 +25,6 @@ const prxz = {
             render: renderSlider,
         },
     },
-        other: CustomFunctions
-    }
 };
 
 export default prxz;
