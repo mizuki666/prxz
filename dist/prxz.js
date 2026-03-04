@@ -1,17 +1,17 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.1 | 2026-03-04T10:48:15.169Z
+    // Версия 1.0.1 | 2026-03-04T11:01:03.140Z
     // MIT License | Compiled by Bundler
     // Author: mizuki666
     // Repository: https://github.com/mizuki666/prxz
-    // Build ID: 19cb8766e1f
+    // Build ID: 19cb8822602
     // =============================================
 
 (function() {
         'use strict';
 
 
-// [10:48:15] LOAD: ./utils/formatValue.js
-// [10:48:15] LOAD: ./helpers/values/validators.js
+// [11:01:03] LOAD: ./utils/formatValue.js
+// [11:01:03] LOAD: ./helpers/values/validators.js
 // validators.js
 const Validators = {
     isEmptyValue: (value) => {
@@ -53,7 +53,7 @@ const Validators = {
 // [EOF]: ./helpers/values/validators.js
 ;
 
-// [10:48:15] LOAD: ./helpers/values/parsers.js
+// [11:01:03] LOAD: ./helpers/values/parsers.js
 // parsers.js
 const Parsers = {
 
@@ -127,7 +127,7 @@ const Parsers = {
 // [EOF]: ./helpers/values/parsers.js
 ;
 
-// [10:48:15] LOAD: ./helpers/values/formatters.js
+// [11:01:03] LOAD: ./helpers/values/formatters.js
 // formatters.js
 const Formatters = {
     narrowNoBreakSpace: '\u202F',
@@ -605,8 +605,8 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [10:48:15] LOAD: ./utils/formatDate.js
-// [10:48:15] LOAD: ./helpers/date/parse-date.js
+// [11:01:03] LOAD: ./utils/formatDate.js
+// [11:01:03] LOAD: ./helpers/date/parse-date.js
 /**
  * Парсит дату и проверяет валидность
  * @param {string|Date} dateInput - Дата для парсинга
@@ -625,7 +625,7 @@ function parseDate(dateInput) {
 // [EOF]: ./helpers/date/parse-date.js
 ;
 
-// [10:48:15] LOAD: ./helpers/date/convert-time.js
+// [11:01:03] LOAD: ./helpers/date/convert-time.js
 /**
  * Конвертирует дату в московское время (UTC+3)
  * @param {Date} date - Исходная дата
@@ -638,7 +638,7 @@ function convertToMoscowTime(date) {
 // [EOF]: ./helpers/date/convert-time.js
 ;
 
-// [10:48:15] LOAD: ./helpers/date/localization.js
+// [11:01:03] LOAD: ./helpers/date/localization.js
 /**
  * Возвращает русские названия месяцев и дней недели
  * @returns {Object} Локализованные строки
@@ -662,7 +662,7 @@ function getLocalizedStrings() {
 // [EOF]: ./helpers/date/localization.js
 ;
 
-// [10:48:15] LOAD: ./helpers/date/apply-format.js
+// [11:01:03] LOAD: ./helpers/date/apply-format.js
 /**
  * Применяет формат к дате
  * @param {Date} date - Дата для форматирования
@@ -796,8 +796,8 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [10:48:15] LOAD: ./components/log/Logger.js
-// [10:48:15] LOAD: ./LoggerStyle.js
+// [11:01:03] LOAD: ./components/log/Logger.js
+// [11:01:03] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -1035,11 +1035,49 @@ const Logger = {
 ;
 // [EOF]: ./components/log/Logger.js
 ;
-// [X] IMPORT ERROR: ./utils/filterText.js // [404] FILE NOT FOUND: ./utils/filterText.js
+
+// [11:01:03] LOAD: ./utils/filterText.js
+/**
+ * Форматирует дату/время в указанный формат
+ * @param {string|Date} dateString - Дата для форматирования
+ * @param {string} format - Формат вывода (по умолчанию 'dd.mm.yyyy'):
+ *   - d, dd: день месяца (1-2 цифры)
+ *   - ddd, dddd: день недели (сокращенно/полностью)
+ *   - m, mm: месяц (1-2 цифры)
+ *   - mmm, mmmm: месяц (сокращенно/полностью)
+ *   - yy, yyyy: год (2/4 цифры)
+ *   - H, HH: часы (0-23, 1-2 цифры)
+ *   - h, hh: часы в 12-часовом формате (1-2 цифры)
+ *   - M, MM: минуты (1-2 цифры)
+ *   - S, SS: секунды (1-2 цифры)
+ *   - t, tt: AM/PM
+ * @returns {string} Отформатированная дата/время или строка-заглушка
+ */
+
+function FilterReplaceText(time,text,id) {
+    setTimeout(() => {
+            const container = document.getElementById(id)
+            const textElement = container.querySelector('.rb-filter-header-text')
+            const textContent = textElement.textContent
+            
+            if(textContent === 'Все'){
+                textElement.textContent = text
+            }
+    }, time)
+}
+// [EOF]: ./utils/filterText.js
 ;
 
-// [10:48:15] LOAD: ./components/slider/Slider.js
-// [X] IMPORT ERROR: ../../utils/genId.js // [404] FILE NOT FOUND: ../../utils/genId.js
+// [11:01:03] LOAD: ./components/slider/Slider.js
+// [11:01:03] LOAD: ../../utils/genId.js
+function genId() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+// [EOF]: ../../utils/genId.js
 ;
 
 const EASE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -1364,8 +1402,8 @@ function initSlider(sldID, dataset, ease) {
 ;
 
 
-// [10:48:15] LOAD: ./api/indexVisi.js
-// [10:48:15] LOAD: ./visiology/getMetricsMono
+// [11:01:03] LOAD: ./api/indexVisi.js
+// [11:01:03] LOAD: ./visiology/getMetricsMono
 /**
  * Получает метрики мониторинга из одной рабочей области (в которой находится)
  * 
@@ -1395,7 +1433,7 @@ function initSlider(sldID, dataset, ease) {
  */
 
 
-// [10:48:15] LOAD: ../utils/getAccessToken
+// [11:01:03] LOAD: ../utils/getAccessToken
 /**
  * Извлекает access token из sessionStorage по указанному ключу
  * 
@@ -1467,7 +1505,7 @@ function getAccessToken(p) {
 // [EOF]: ../utils/getAccessToken
 ;
 
-// [10:48:15] LOAD: ../utils/getMonoPath
+// [11:01:03] LOAD: ../utils/getMonoPath
 /**
  * Формирует URL-адреса для доступа к API на основе текущего домена и workspaceId
  * 
@@ -1568,7 +1606,7 @@ function getMonoPath() {
 // [EOF]: ../utils/getMonoPath
 ;
 
-// [10:48:15] LOAD: ../utils/groupDatasets
+// [11:01:03] LOAD: ../utils/groupDatasets
 /**
  * Группирует шедулеры с привязанными к ним дашбордами
  * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
@@ -1627,7 +1665,7 @@ function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/groupDatasets
 ;
 
-// [10:48:15] LOAD: ../utils/checkDeadShedulers
+// [11:01:03] LOAD: ../utils/checkDeadShedulers
 /**
  * Проверяет и идентифицирует "мертвые" шедулеры (неработающие планировщики)
  * 
@@ -1694,7 +1732,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/checkDeadShedulers
 ;
 
-// [10:48:15] LOAD: ../utils/getShedulersMore
+// [11:01:03] LOAD: ../utils/getShedulersMore
 /**
  * Обогащает данные шедулеров дополнительной информацией из API
  * 
@@ -1912,11 +1950,11 @@ async function getMetricsMono() {
 ;
 // [EOF]: ./visiology/getMetricsMono
 
-// [10:48:15] SKIP (already loaded): ./utils/getAccessToken
+// [11:01:03] SKIP (already loaded): ./utils/getAccessToken
 
-// [10:48:15] SKIP (already loaded): ./utils/getShedulersMore
+// [11:01:03] SKIP (already loaded): ./utils/getShedulersMore
 
-// [10:48:15] SKIP (already loaded): ./utils/groupDatasets
+// [11:01:03] SKIP (already loaded): ./utils/groupDatasets
 
 
 const visi = {
@@ -1945,12 +1983,15 @@ const prxz = {
         d: FormatDate,
     },
     func: {
-        FilterReplaceText,
+        other: {
+            FilterReplaceText
+        },
     },
     comp: {
-        photo: {},
-        slider: {
-            render: renderSlider,
+        photo: {
+            slider: {
+                render: renderSlider,
+            },
         },
     },
 };

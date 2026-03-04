@@ -17,12 +17,15 @@ const prxz = {
         d: FormatDate,
     },
     func: {
-        FilterReplaceText,
+        other: {
+            FilterReplaceText
+        },
     },
     comp: {
-        photo: {},
-        slider: {
-            render: renderSlider,
+        photo: {
+            slider: {
+                render: renderSlider,
+            },
         },
     },
 };
