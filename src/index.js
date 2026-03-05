@@ -3,6 +3,7 @@ import { FormatDate } from './utils/formatDate.js';
 import { Logger } from './components/log/Logger.js';
 import { FilterReplaceText } from './utils/filterText.js';
 import { renderSlider } from './components/slider/Slider.js';
+import { renderTable } from './components/table/Table.js';
 
 import visi from './api/indexVisi.js';
 
@@ -17,12 +18,18 @@ const prxz = {
         d: FormatDate,
     },
     func: {
-        FilterReplaceText,
+        other: {
+            FilterReplaceText
+        },
     },
     comp: {
-        photo: {},
-        slider: {
-            render: renderSlider,
+        photo: {
+            slider: {
+                render: renderSlider,
+            },
+        },
+        table: {
+            render: renderTable,
         },
     },
 };
