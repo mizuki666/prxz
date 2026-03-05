@@ -101,16 +101,17 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
         const first = data[0];
         const keys = Object.keys(first);
         columns.push(...keys.map((k) => ({ key: k, label: k, width: '' })));
-        const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
-        if (widths) {
-            columns.forEach((col) => {
-                const w = widths[col.key];
-                if (w != null && w !== '') col.width = typeof w === 'number' ? w + 'px' : String(w);
-            });
-        }
     } else if (columns.length === 0) {
         el.innerHTML = '';
         return;
+    }
+
+    const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
+    if (widths) {
+        columns.forEach((col) => {
+            const w = widths[col.key];
+            if (w != null && w !== '') col.width = typeof w === 'number' ? w + 'px' : String(w);
+        });
     }
 
     const html = buildTableHTML(tableId, prefix, data, columns, cfg);
@@ -129,10 +130,17 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     if (stickyHeader) {
         thStyle += ' position: sticky; top: 0; z-index: 2; background: var(--tbl-head-bg, #1e2a4a); box-shadow: 0 1px 0 var(--tbl-border, rgba(255,255,255,.08));';
     }
+    const colgroup = columns
+        .map((col) => {
+            const w = col.width ? ` style="width:${escapeAttr(col.width)}"` : '';
+            return `<col${w}>`;
+        })
+        .join('');
+
     const headerCells = columns
         .map((col) => {
-            const w = col.width ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};` : '';
-            return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
+            const w = col.width ? `width:${col.width};min-width:${col.width};max-width:${col.width};` : '';
+            return `<th class="${prefix}-th" style="${thStyle}${w ? ' ' + w : ''}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
         .join('');
 
@@ -152,7 +160,8 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     return `
 <div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
   <div class="${prefix}-scroll" style="flex: 1; min-height: 0; overflow: auto;">
-    <table id="tbl-${tableId}" class="${prefix}-table" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="width: 100%; border-collapse: collapse; border-spacing: 0; table-layout: fixed;">
+      <colgroup>${colgroup}</colgroup>
       <thead class="${prefix}-thead">
         <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
       </thead>
