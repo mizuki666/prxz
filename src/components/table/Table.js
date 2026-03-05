@@ -194,7 +194,7 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     }
     const colgroup = columns
         .map((col) => {
-            if (isScrolling && col.width) return `<col style="width:${escapeAttr(col.width)}">`;
+            if (col.width) return `<col style="width:${escapeAttr(col.width)}">`;
             if (isScrolling) return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
             return `<col>`;
         })
@@ -203,10 +203,12 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     const headerCells = columns
         .map((col) => {
             let w = '';
-            if (isScrolling) {
-                w = col.width
+            if (col.width) {
+                w = isScrolling
                     ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
-                    : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+                    : `width:${col.width};`;
+            } else if (isScrolling) {
+                w = `min-width:${DEFAULT_MIN_COL_WIDTH};`;
             }
             return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
@@ -218,10 +220,12 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
                 const value = row[col.key];
                 const text = value != null ? String(value) : '';
                 let w = '';
-                if (isScrolling) {
-                    w = col.width
+                if (col.width) {
+                    w = isScrolling
                         ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
-                        : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
+                        : `width: ${col.width};`;
+                } else if (isScrolling) {
+                    w = `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
                 }
                 return `<td class="${prefix}-td" style="padding: 10px 12px; ${w}" data-col="${escapeAttr(col.key)}" data-row-index="${rowIndex}">${escapeHtml(text)}</td>`;
             })
