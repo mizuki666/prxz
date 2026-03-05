@@ -1,6 +1,6 @@
 import { genId } from '../../utils/genId.js';
 
-const DEFAULT_MIN_COL_WIDTH = '6rem';
+const DEFAULT_MIN_COL_WIDTH = 'auto';
 
 const DEFAULT_CONFIG = {
     container: null,
