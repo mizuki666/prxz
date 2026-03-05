@@ -1,5 +1,7 @@
 import { genId } from '../../utils/genId.js';
 
+const DEFAULT_MIN_COL_WIDTH = '6rem';
+
 const DEFAULT_CONFIG = {
     container: null,
     dataset: [],
@@ -24,12 +26,13 @@ function isRawColsValues(data) {
 }
 
 /**
- * Проверяет формат «обёртка»: один объект с cols и items (имена колонок и массив строк).
+ * Проверяет формат «обёртка»: ровно один объект с cols и items (имена колонок и массив строк).
+ * Не срабатывает для массива строк вида [ { cols, values }, ... ].
  * @param {*} data
  * @returns {boolean}
  */
 function isWrappedColsItems(data) {
-    if (!Array.isArray(data) || data.length === 0) return false;
+    if (!Array.isArray(data) || data.length !== 1) return false;
     const first = data[0];
     const colNames = first && (Array.isArray(first.cols) || Array.isArray(first.keys));
     const rowList = first && Array.isArray(first.items);
@@ -130,14 +133,14 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
     }
     let columns = normalizeColumns(cfg.columns);
 
-    if (isWrappedColsItems(data)) {
+    if (isRawColsValues(data)) {
+        data = rawToRowObjects(data);
+    } else if (isWrappedColsItems(data)) {
         const { rows, columnNames } = unwrapColsItems(data);
         data = rows;
         if (columns.length === 0 && columnNames.length > 0) {
             columns = columnNames.map((k) => ({ key: k, label: k, width: '' }));
         }
-    } else if (isRawColsValues(data)) {
-        data = rawToRowObjects(data);
     }
 
     const tableId = genId();
@@ -181,15 +184,17 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     }
     const colgroup = columns
         .map((col) => {
-            const w = col.width ? ` style="width:${escapeAttr(col.width)}"` : '';
-            return `<col${w}>`;
+            if (col.width) return `<col style="width:${escapeAttr(col.width)}">`;
+            return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
         })
         .join('');
 
     const headerCells = columns
         .map((col) => {
-            const w = col.width ? `width:${col.width};min-width:${col.width};max-width:${col.width};` : '';
-            return `<th class="${prefix}-th" style="${thStyle}${w ? ' ' + w : ''}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
+            const w = col.width
+                ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
+                : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+            return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
         .join('');
 
@@ -198,7 +203,9 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
             .map((col) => {
                 const value = row[col.key];
                 const text = value != null ? String(value) : '';
-                const w = col.width ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};` : '';
+                const w = col.width
+                    ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
+                    : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
                 return `<td class="${prefix}-td" style="padding: 10px 12px; ${w}" data-col="${escapeAttr(col.key)}" data-row-index="${rowIndex}">${escapeHtml(text)}</td>`;
             })
             .join('');
@@ -207,6 +214,7 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     }).join('');
 
     const hasExplicitWidths = columns.some((col) => col.width);
+    const tableLayout = hasExplicitWidths ? 'auto' : 'fixed';
     const tableWidthStyle = hasExplicitWidths
         ? 'width: max-content; min-width: 100%;'
         : 'width: 100%;';
@@ -214,7 +222,7 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     return `
 <div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
   <div class="${prefix}-scroll" style="flex: 1; min-height: 0; overflow: auto;">
-    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} border-collapse: collapse; border-spacing: 0; table-layout: fixed;">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} border-collapse: collapse; border-spacing: 0; table-layout: ${tableLayout};">
       <colgroup>${colgroup}</colgroup>
       <thead class="${prefix}-thead">
         <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
