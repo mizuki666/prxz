@@ -4,6 +4,7 @@ const DEFAULT_CONFIG = {
     container: null,
     dataset: [],
     columns: [],
+    columnWidths: null,
     stickyHeader: true,
     onRowClick: null,
     onCellClick: null,
@@ -67,6 +68,7 @@ function normalizeColumns(columns) {
  * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк { key: value } или сырой формат { cols, values } (имена столбцов из cols)
  * @param {Object} [config] - конфиг (если первый аргумент — container)
  * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (необязательно: автоматом из данных)
+ * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу колонки (при авто-колонках), например { 'РНГИО': '120px' }
  * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок при прокрутке
  * @param {function(row: Object, rowIndex: number)} [config.onRowClick] - клик по строке
  * @param {function(row: Object, cellKey: string, value: *, rowIndex: number)} [config.onCellClick] - клик по ячейке
@@ -99,6 +101,13 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
         const first = data[0];
         const keys = Object.keys(first);
         columns.push(...keys.map((k) => ({ key: k, label: k, width: '' })));
+        const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
+        if (widths) {
+            columns.forEach((col) => {
+                const w = widths[col.key];
+                if (w != null && w !== '') col.width = typeof w === 'number' ? w + 'px' : String(w);
+            });
+        }
     } else if (columns.length === 0) {
         el.innerHTML = '';
         return;

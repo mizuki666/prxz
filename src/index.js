@@ -3,8 +3,8 @@ import { FormatDate } from './utils/formatDate.js';
 import { Logger } from './components/log/Logger.js';
 import { FilterReplaceText } from './utils/filterText.js';
 import { genId } from './utils/genId.js';
-import { renderSlider } from './components/slider/Slider.js';
-import { renderTable } from './components/table/Table.js';
+import { renderSlider } from './components/slider/index.js';
+import { renderTable } from './components/table/index.js';
 
 import visi from './api/indexVisi.js';
 
@@ -25,16 +25,12 @@ const prxz = {
         },
     },
     comp: {
-        photo: {
-            slider: {
-                render: renderSlider,
-            },
-        },
         table: {
-            simple:{
-                render: renderTable
-            }
-        }
+            render: renderTable,
+        },
+        slider: {
+            render: renderSlider,
+        },
     },
 };
 

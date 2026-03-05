@@ -11,7 +11,7 @@ const dataset = w.data.primaryData.items;
 const tableConfig = {
     container: wGuid,
     dataset,
-    // columns не задаём — подхватятся из cols; при необходимости задайте ширины: columns: [{ key: 'mass', width: '120px' }, ...]
+    // колонки из данных; ширину одной/нескольких задать: columnWidths: { 'РНГИО': '120px' }
     stickyHeader: true,
     style: {
         borderRadius: '20px',
@@ -19,7 +19,7 @@ const tableConfig = {
         padding: '10px',
     },
     onRowClick(row, rowIndex) {
-        const rngio = row.mass; // ключ как в cols; при необходимости замените на нужное поле
+        const rngio = row['РНГИО'];
         if (rngio != null && typeof visApi === 'function') {
             visApi().setFilterSelectedValues(filterID, [[rngio]], function () {});
         }
