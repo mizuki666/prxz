@@ -24,6 +24,47 @@ function isRawColsValues(data) {
 }
 
 /**
+ * Проверяет формат «обёртка»: один объект с cols и items (имена колонок и массив строк).
+ * @param {*} data
+ * @returns {boolean}
+ */
+function isWrappedColsItems(data) {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    const first = data[0];
+    const colNames = first && (Array.isArray(first.cols) || Array.isArray(first.keys));
+    const rowList = first && Array.isArray(first.items);
+    return !!(colNames && rowList);
+}
+
+/**
+ * Разворачивает формат { cols/keys, items } в массив строк и имена колонок.
+ * Элементы items могут быть { values: any[] } или уже объекты-строки { [key]: value }.
+ * @param {Array<{cols?: string[], keys?: string[], items: Array<{values?: *[]}|Object>}>} raw
+ * @returns {{ rows: Object[], columnNames: string[] }}
+ */
+function unwrapColsItems(raw) {
+    const wrapper = raw[0];
+    const columnNames = wrapper.cols || wrapper.keys || [];
+    const items = wrapper.items || [];
+    const rows = items.map((item) => {
+        const pv = Array.isArray(item?.values) ? item.values : null;
+        if (pv) {
+            const row = {};
+            for (let j = 0; j < columnNames.length; j++) row[columnNames[j]] = pv[j];
+            return row;
+        }
+        if (item && typeof item === 'object' && !Array.isArray(item) && !(Array.isArray(item.cols) && 'values' in item)) {
+            return item;
+        }
+        const row = {};
+        const fallback = Array.isArray(item?.values) ? item.values : [];
+        for (let j = 0; j < columnNames.length; j++) row[columnNames[j]] = fallback[j];
+        return row;
+    });
+    return { rows, columnNames };
+}
+
+/**
  * Преобразует сырой массив { cols, values } в массив объектов-строк (как getDataTable).
  * @param {Array<{cols: string[], values: *[]}>} raw
  * @returns {Object[]}
@@ -87,10 +128,18 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
         data = Array.isArray(dataset) ? dataset : [];
         cfg = { ...DEFAULT_CONFIG, ...config };
     }
-    if (isRawColsValues(data)) {
+    let columns = normalizeColumns(cfg.columns);
+
+    if (isWrappedColsItems(data)) {
+        const { rows, columnNames } = unwrapColsItems(data);
+        data = rows;
+        if (columns.length === 0 && columnNames.length > 0) {
+            columns = columnNames.map((k) => ({ key: k, label: k, width: '' }));
+        }
+    } else if (isRawColsValues(data)) {
         data = rawToRowObjects(data);
     }
-    const columns = normalizeColumns(cfg.columns);
+
     const tableId = genId();
     const prefix = cfg.classPrefix;
 
