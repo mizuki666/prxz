@@ -109,7 +109,7 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
     const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
     if (widths) {
         columns.forEach((col) => {
-            const w = widths[col.key];
+            const w = widths[col.key] ?? widths[col.label];
             if (w != null && w !== '') col.width = typeof w === 'number' ? w + 'px' : String(w);
         });
     }
@@ -157,10 +157,15 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
         return `<tr class="${prefix}-tr${clickable}" data-row-index="${rowIndex}">${cells}</tr>`;
     }).join('');
 
+    const hasExplicitWidths = columns.some((col) => col.width);
+    const tableWidthStyle = hasExplicitWidths
+        ? 'width: max-content; min-width: 100%;'
+        : 'width: 100%;';
+
     return `
 <div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
   <div class="${prefix}-scroll" style="flex: 1; min-height: 0; overflow: auto;">
-    <table id="tbl-${tableId}" class="${prefix}-table" style="width: 100%; border-collapse: collapse; border-spacing: 0; table-layout: fixed;">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} border-collapse: collapse; border-spacing: 0; table-layout: fixed;">
       <colgroup>${colgroup}</colgroup>
       <thead class="${prefix}-thead">
         <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
