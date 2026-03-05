@@ -10,6 +10,8 @@ const DEFAULT_CONFIG = {
     stickyHeader: true,
     borderCollapse: 'collapse',
     borderSpacing: '0',
+    /** Если true — разрешена горизонтальная прокрутка; если false — таблица всегда влезает в контейнер, столбцы подстраиваются */
+    isScrolling: false,
     onRowClick: null,
     onCellClick: null,
     classPrefix: 'prxz-tbl',
@@ -116,6 +118,7 @@ function normalizeColumns(columns) {
  * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (необязательно: автоматом из данных)
  * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу колонки (при авто-колонках), например { 'РНГИО': '120px' }
  * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок при прокрутке
+ * @param {boolean} [config.isScrolling=false] - если true, разрешена горизонтальная прокрутка; иначе таблица влезает в контейнер, столбцы подстраиваются
  * @param {string} [config.borderCollapse='collapse'] - 'collapse' | 'separate'
  * @param {string} [config.borderSpacing] - при borderCollapse:'separate' отступ между ячейками, например '0.5em 0.5em'
  * @param {function(row: Object, rowIndex: number)} [config.onRowClick] - клик по строке
@@ -177,10 +180,13 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
 
 function buildTableHTML(tableId, prefix, data, columns, cfg) {
     const stickyHeader = cfg.stickyHeader !== false;
+    const isScrolling = cfg.isScrolling === true;
     const wrapperStyle = { borderRadius: '12px', overflow: 'hidden', ...(cfg.style || {}) };
     const wrapperStyleStr = Object.entries(wrapperStyle)
         .map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`)
         .join(';');
+
+    const scrollStyle = `flex: 1; min-height: 0; overflow-x: ${isScrolling ? 'auto' : 'hidden'}; overflow-y: auto;`;
 
     let thStyle = 'padding: 10px 12px; text-align: left; font-weight: 600; white-space: nowrap;';
     if (stickyHeader) {
@@ -188,16 +194,20 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     }
     const colgroup = columns
         .map((col) => {
-            if (col.width) return `<col style="width:${escapeAttr(col.width)}">`;
-            return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
+            if (isScrolling && col.width) return `<col style="width:${escapeAttr(col.width)}">`;
+            if (isScrolling) return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
+            return `<col>`;
         })
         .join('');
 
     const headerCells = columns
         .map((col) => {
-            const w = col.width
-                ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
-                : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+            let w = '';
+            if (isScrolling) {
+                w = col.width
+                    ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
+                    : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+            }
             return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
         .join('');
@@ -207,9 +217,12 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
             .map((col) => {
                 const value = row[col.key];
                 const text = value != null ? String(value) : '';
-                const w = col.width
-                    ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
-                    : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
+                let w = '';
+                if (isScrolling) {
+                    w = col.width
+                        ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
+                        : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
+                }
                 return `<td class="${prefix}-td" style="padding: 10px 12px; ${w}" data-col="${escapeAttr(col.key)}" data-row-index="${rowIndex}">${escapeHtml(text)}</td>`;
             })
             .join('');
@@ -217,18 +230,19 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
         return `<tr class="${prefix}-tr${clickable}" data-row-index="${rowIndex}">${cells}</tr>`;
     }).join('');
 
-    const hasExplicitWidths = columns.some((col) => col.width);
+    const hasExplicitWidths = isScrolling && columns.some((col) => col.width);
     const tableWidthStyle = hasExplicitWidths
         ? 'width: max-content; min-width: 100%;'
         : 'width: 100%;';
+    const tableLayoutStyle = isScrolling ? 'table-layout: auto;' : 'table-layout: fixed;';
     const borderCollapse = cfg.borderCollapse === 'separate' ? 'separate' : 'collapse';
     const borderSpacing = cfg.borderCollapse === 'separate' ? (cfg.borderSpacing || '0.5em 0.5em') : '0';
     const tableBorderStyle = `border-collapse: ${borderCollapse}; border-spacing: ${borderSpacing};`;
 
     return `
 <div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
-  <div class="${prefix}-scroll" style="flex: 1; min-height: 0; overflow: auto;">
-    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} ${tableBorderStyle} table-layout: auto;">
+  <div class="${prefix}-scroll" style="${scrollStyle}">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} ${tableBorderStyle} ${tableLayoutStyle}">
       <colgroup>${colgroup}</colgroup>
       <thead class="${prefix}-thead">
         <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
