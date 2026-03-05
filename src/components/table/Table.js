@@ -8,6 +8,8 @@ const DEFAULT_CONFIG = {
     columns: [],
     columnWidths: null,
     stickyHeader: true,
+    borderCollapse: 'collapse',
+    borderSpacing: '0',
     onRowClick: null,
     onCellClick: null,
     classPrefix: 'prxz-tbl',
@@ -114,6 +116,8 @@ function normalizeColumns(columns) {
  * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (необязательно: автоматом из данных)
  * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу колонки (при авто-колонках), например { 'РНГИО': '120px' }
  * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок при прокрутке
+ * @param {string} [config.borderCollapse='collapse'] - 'collapse' | 'separate'
+ * @param {string} [config.borderSpacing] - при borderCollapse:'separate' отступ между ячейками, например '0.5em 0.5em'
  * @param {function(row: Object, rowIndex: number)} [config.onRowClick] - клик по строке
  * @param {function(row: Object, cellKey: string, value: *, rowIndex: number)} [config.onCellClick] - клик по ячейке
  * @param {Object} [config.style] - доп. стили обёртки (backgroundColor, borderRadius и т.д.)
@@ -214,15 +218,17 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     }).join('');
 
     const hasExplicitWidths = columns.some((col) => col.width);
-    const tableLayout = hasExplicitWidths ? 'auto' : 'fixed';
     const tableWidthStyle = hasExplicitWidths
         ? 'width: max-content; min-width: 100%;'
         : 'width: 100%;';
+    const borderCollapse = cfg.borderCollapse === 'separate' ? 'separate' : 'collapse';
+    const borderSpacing = cfg.borderCollapse === 'separate' ? (cfg.borderSpacing || '0.5em 0.5em') : '0';
+    const tableBorderStyle = `border-collapse: ${borderCollapse}; border-spacing: ${borderSpacing};`;
 
     return `
 <div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
   <div class="${prefix}-scroll" style="flex: 1; min-height: 0; overflow: auto;">
-    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} border-collapse: collapse; border-spacing: 0; table-layout: ${tableLayout};">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} ${tableBorderStyle} table-layout: auto;">
       <colgroup>${colgroup}</colgroup>
       <thead class="${prefix}-thead">
         <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
@@ -261,7 +267,6 @@ function tableStyles(prefix) {
   scrollbar-width: thin;
 }
 .${prefix}-table {
-  table-layout: fixed;
   color: var(--tbl-text);
   font-size: 14px;
 }
@@ -281,6 +286,10 @@ function tableStyles(prefix) {
 }
 .${prefix}-tbody .${prefix}-row-clickable:hover {
   background: color-mix(in srgb, var(--tbl-row-bg) 88%, white) !important;
+}
+.${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected,
+.${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected:nth-child(even) {
+  background: var(--tbl-row-selected, rgba(255, 200, 80, 0.25)) !important;
 }
 .${prefix}-th, .${prefix}-td {
   border-bottom: 1px solid var(--tbl-border);
@@ -306,6 +315,9 @@ function initTableEvents(wrapEl, tableId, prefix, data, cfg) {
         const rowIndex = parseInt(tr.getAttribute('data-row-index'), 10);
         if (rowIndex < 0 || rowIndex >= data.length) return;
         const row = data[rowIndex];
+
+        tbody.querySelectorAll(`.${prefix}-tr.${prefix}-tr-selected`).forEach((r) => r.classList.remove(`${prefix}-tr-selected`));
+        tr.classList.add(`${prefix}-tr-selected`);
 
         const td = e.target.closest(`.${prefix}-td`);
         if (td && typeof cfg.onCellClick === 'function') {
