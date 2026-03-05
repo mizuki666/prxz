@@ -19,7 +19,7 @@ const DEFAULT_CONFIG = {
 
 /**
  * Нормализует «интуитивный» конфиг в плоский внутренний формат.
- * Группы: target/data, columns (key -> { width }), appearance, on (rowClick, cellClick), scroll.
+ * Группы: target/data, columns (key -> { width }), style, on (rowClick, cellClick), scroll.
  * Старый плоский вызов (container, dataset, columnWidths, onRowClick...) по-прежнему поддерживается.
  * @param {Object} raw - входящий конфиг (группированный или плоский)
  * @returns {Object} плоский конфиг для renderTable
@@ -34,22 +34,19 @@ function normalizeIntuitiveConfig(raw) {
     // data / dataset
     if (raw.data !== undefined) flat.dataset = raw.data;
 
-    // columns: { 'Колонка': { width: '10%' } } -> columnWidths + опционально columns
+    // columns: { 'Колонка': { width: '10%' } } — только ширины/опции, список колонок из data
     if (raw.columns && typeof raw.columns === 'object' && !Array.isArray(raw.columns)) {
         const columnWidths = {};
-        const columnList = [];
         for (const [key, opts] of Object.entries(raw.columns)) {
-            columnList.push(typeof opts === 'string' ? { key, label: key, width: opts } : { key, label: key, ...opts });
-            const w = opts && (opts.width ?? opts.w);
+            const w = opts && (typeof opts === 'string' ? opts : (opts.width ?? opts.w));
             if (w != null) columnWidths[key] = w;
         }
-        if (columnList.length) flat.columns = columnList;
         if (Object.keys(columnWidths).length) flat.columnWidths = { ...flat.columnWidths, ...columnWidths };
     }
 
-    // appearance: border, borderRadius, style
-    if (raw.appearance && typeof raw.appearance === 'object') {
-        const a = raw.appearance;
+    // style: border, borderRadius, style
+    if (raw.style && typeof raw.style === 'object') {
+        const a = raw.style;
         if (a.border) {
             if (a.border.collapse != null) flat.borderCollapse = a.border.collapse;
             if (a.border.spacing != null) flat.borderSpacing = a.border.spacing;
@@ -178,14 +175,14 @@ function normalizeColumns(columns) {
  *     target: elementOrId,
  *     data: items,
  *     columns: { 'РНГИО': { width: '10%' } },
- *     appearance: { border: { collapse: 'separate', spacing: '0.5em 0.5em' }, borderRadius: '20px' },
+ *     style: { border: { collapse: 'separate', spacing: '0.5em 0.5em' }, borderRadius: '20px' },
  *     scroll: { horizontal: false },
  *     on: { rowClick(row, rowIndex) { ... } },
  *   })
  *
  * Классический вызов: renderTable(container, dataset, config) или renderTable({ container, dataset, ... }).
  *
- * @param {string|HTMLElement|Object} containerOrConfig - id/элемент или конфиг (target/data, columns, appearance, on, scroll)
+ * @param {string|HTMLElement|Object} containerOrConfig - id/элемент или конфиг (target/data, columns, style, on, scroll)
  * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк или сырой формат { cols, values }
  * @param {Object} [config] - конфиг при вызове (container, dataset)
  * @param {Array<string|{key, label?, width?}>} [config.columns] - колонки
@@ -278,13 +275,16 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
         .join('');
     const headerCells = columns
         .map((col) => {
+            console.log(col,'col')
+            
             let w = '';
             if (isScrolling) {
                 w = col.width
                     ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
                     : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
             }
-            return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
+            
+            return `<th class="${prefix}-th" style="${thStyle} ${w}" title="${escapeHtml(col.label)}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
         .join('');
     const rows = data.map((row, rowIndex) => {
@@ -352,9 +352,27 @@ function tableStyles(prefix) {
   --tbl-text-muted: rgba(255,255,255,.65);
   background: rgb(18 32 66 / 0.71);
 }
-.${prefix}-scroll {
-  scrollbar-width: thin;
+
+/* Стили для скролла внутри этого конкретного контейнера */
+.${prefix}-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
 }
+
+.${prefix}-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.${prefix}-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.${prefix}-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
 .${prefix}-table {
   color: var(--tbl-text);
   font-size: 14px;

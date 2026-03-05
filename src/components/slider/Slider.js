@@ -28,6 +28,8 @@ function buildSliderHTML(sldID, dataset, ease) {
     let slides = '';
     if (dataset.length > 0) {
         slides += `<div class="slide"><img src="${dataset[dataset.length - 1]}" alt=""></div>`;
+    } else if(dataset.length === 0){
+        return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:bold;">Нет данных</div>`
     }
     dataset.forEach((img, i) => {
         slides += `<div class="slide"><img src="${img}" alt="slide ${i + 1}" class="sld-img" data-src="${img}"></div>`;

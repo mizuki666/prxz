@@ -1,17 +1,17 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.1 | 2026-03-04T14:12:34.624Z
+    // Версия 1.0.1 | 2026-03-05T13:49:12.488Z
     // MIT License | Compiled by Bundler
     // Author: mizuki666
     // Repository: https://github.com/mizuki666/prxz
-    // Build ID: 19cb9317ea3
+    // Build ID: 19cbe42758a
     // =============================================
 
 (function() {
         'use strict';
 
 
-// [14:12:34] LOAD: ./utils/formatValue.js
-// [14:12:34] LOAD: ./helpers/values/validators.js
+// [13:49:12] LOAD: ./utils/formatValue.js
+// [13:49:12] LOAD: ./helpers/values/validators.js
 // validators.js
 const Validators = {
     isEmptyValue: (value) => {
@@ -53,7 +53,7 @@ const Validators = {
 // [EOF]: ./helpers/values/validators.js
 ;
 
-// [14:12:34] LOAD: ./helpers/values/parsers.js
+// [13:49:12] LOAD: ./helpers/values/parsers.js
 // parsers.js
 const Parsers = {
 
@@ -127,7 +127,7 @@ const Parsers = {
 // [EOF]: ./helpers/values/parsers.js
 ;
 
-// [14:12:34] LOAD: ./helpers/values/formatters.js
+// [13:49:12] LOAD: ./helpers/values/formatters.js
 // formatters.js
 const Formatters = {
     narrowNoBreakSpace: '\u202F',
@@ -605,8 +605,8 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [14:12:34] LOAD: ./utils/formatDate.js
-// [14:12:34] LOAD: ./helpers/date/parse-date.js
+// [13:49:12] LOAD: ./utils/formatDate.js
+// [13:49:12] LOAD: ./helpers/date/parse-date.js
 /**
  * Парсит дату и проверяет валидность
  * @param {string|Date} dateInput - Дата для парсинга
@@ -625,7 +625,7 @@ function parseDate(dateInput) {
 // [EOF]: ./helpers/date/parse-date.js
 ;
 
-// [14:12:34] LOAD: ./helpers/date/convert-time.js
+// [13:49:12] LOAD: ./helpers/date/convert-time.js
 /**
  * Конвертирует дату в московское время (UTC+3)
  * @param {Date} date - Исходная дата
@@ -638,7 +638,7 @@ function convertToMoscowTime(date) {
 // [EOF]: ./helpers/date/convert-time.js
 ;
 
-// [14:12:34] LOAD: ./helpers/date/localization.js
+// [13:49:12] LOAD: ./helpers/date/localization.js
 /**
  * Возвращает русские названия месяцев и дней недели
  * @returns {Object} Локализованные строки
@@ -662,7 +662,7 @@ function getLocalizedStrings() {
 // [EOF]: ./helpers/date/localization.js
 ;
 
-// [14:12:34] LOAD: ./helpers/date/apply-format.js
+// [13:49:12] LOAD: ./helpers/date/apply-format.js
 /**
  * Применяет формат к дате
  * @param {Date} date - Дата для форматирования
@@ -796,8 +796,8 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [14:12:34] LOAD: ./components/log/Logger.js
-// [14:12:34] LOAD: ./LoggerStyle.js
+// [13:49:12] LOAD: ./components/log/Logger.js
+// [13:49:12] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -1036,7 +1036,7 @@ const Logger = {
 // [EOF]: ./components/log/Logger.js
 ;
 
-// [14:12:34] LOAD: ./utils/filterText.js
+// [13:49:12] LOAD: ./utils/filterText.js
 /**
  * Форматирует дату/время в указанный формат
  * @param {string|Date} dateString - Дата для форматирования
@@ -1068,7 +1068,7 @@ function FilterReplaceText(time,text,id) {
 // [EOF]: ./utils/filterText.js
 ;
 
-// [14:12:34] LOAD: ./utils/genId.js
+// [13:49:12] LOAD: ./utils/genId.js
 function genId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -1079,8 +1079,9 @@ function genId() {
 // [EOF]: ./utils/genId.js
 ;
 
-// [14:12:34] LOAD: ./components/slider/Slider.js
-// [14:12:34] SKIP (already loaded): ../../utils/genId.js
+// [13:49:12] LOAD: ./components/slider/index.js
+// [13:49:12] LOAD: ./Slider.js
+// [13:49:12] SKIP (already loaded): ../../utils/genId.js
 ;
 
 const EASE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -1111,6 +1112,8 @@ function buildSliderHTML(sldID, dataset, ease) {
     let slides = '';
     if (dataset.length > 0) {
         slides += `<div class="slide"><img src="${dataset[dataset.length - 1]}" alt=""></div>`;
+    } else if(dataset.length === 0){
+        return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:bold;">Нет данных</div>`
     }
     dataset.forEach((img, i) => {
         slides += `<div class="slide"><img src="${img}" alt="slide ${i + 1}" class="sld-img" data-src="${img}"></div>`;
@@ -1138,7 +1141,6 @@ ${s} .sld-track{display:flex;transition:transform .7s var(--sld-ease);height:100
 ${s} .slide{flex-shrink:0;min-width:0;height:100%;display:flex;align-items:stretch;justify-content:stretch;padding:0;box-sizing:border-box;background:#0a0a0c}
 ${s} .slide img{width:100%;height:100%;object-fit:cover;display:block;transform:translateZ(0)}
 ${s} .slide img.sld-img{cursor:pointer;transition:transform .45s var(--sld-ease),filter .45s var(--sld-ease);filter:saturate(1.02) contrast(1.02)}
-${s} .slide img.sld-img:hover{transform:scale(1.03);filter:saturate(1.08) contrast(1.06)}
 ${s} .slide img.sld-img:active{transform:scale(.99)}
 
 ${s} .sld-btn{position:absolute;top:50%;transform:translateY(-50%);border:none;cursor:pointer;padding:0;z-index:10;border-radius:999px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;color:var(--sld-ui-text);background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));box-shadow:0 10px 28px rgba(0,0,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);outline:none;transition:transform .2s ease,background .2s ease,box-shadow .2s ease,opacity .2s ease}
@@ -1154,13 +1156,6 @@ ${s} .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.
 ${s} .dot:hover{background:rgba(255,255,255,.78);transform:scale(1.12)}
 ${s} .dot.active{width:22px;background:rgba(255,255,255,.92);opacity:1;box-shadow:0 8px 18px rgba(0,0,0,.28)}
 
-@media (max-width: 560px){
-  ${s}{--sld-radius:14px;box-shadow:var(--sld-shadow2)}
-  ${s} .sld-btn{width:42px;height:42px}
-  ${s} .sld-btn.prev{left:10px}
-  ${s} .sld-btn.next{right:10px}
-  ${s} .sld-dots{bottom:10px;gap:7px;padding:7px 9px}
-}
 @media (prefers-reduced-motion: reduce){
   ${s} .sld-track{transition:none!important}
   ${s} .slide img.sld-img{transition:none!important}
@@ -1184,17 +1179,11 @@ ${s} .dot.active{width:22px;background:rgba(255,255,255,.92);opacity:1;box-shado
 .sld-fs-modal .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.38);cursor:pointer;transition:transform .25s ease,background .25s ease,width .25s ease,opacity .25s ease;opacity:.85}
 .sld-fs-modal .dot:hover{background:rgba(255,255,255,.75);transform:scale(1.12)}
 .sld-fs-modal .dot.active{width:24px;background:rgba(255,255,255,.92);opacity:1;box-shadow:0 12px 26px rgba(0,0,0,.35)}
-.sld-fs-modal .sld-fs-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border:none;background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));color:#fff;cursor:pointer;border-radius:999px;z-index:10;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 34px rgba(0,0,0,.42);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}
+.sld-fs-modal .sld-fs-close{position:absolute;top:16px;right:16px;width:44px;height:44px;border:none;background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));color:#ff4d4f;cursor:pointer;border-radius:50%;z-index:10;display:flex;align-items:center;justify-content:center;box-shadow:0 14px 34px rgba(0,0,0,.42);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:background .2s ease,transform .2s ease,box-shadow .2s ease}
 .sld-fs-modal .sld-fs-close svg{display:block;opacity:.95}
 .sld-fs-modal .sld-fs-close:hover{background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));transform:scale(1.06);box-shadow:0 16px 40px rgba(0,0,0,.5)}
 .sld-fs-modal .sld-fs-close:active{transform:scale(.98)}
-@media (max-width: 560px){
-  .sld-fs-modal .sld-btn{width:46px;height:46px}
-  .sld-fs-modal .sld-btn.prev{left:12px}
-  .sld-fs-modal .sld-btn.next{right:12px}
-  .sld-fs-modal .sld-fs-close{top:12px;right:12px}
-  .sld-fs-modal .sld-dots{bottom:12px}
-}
+
 @media (prefers-reduced-motion: reduce){
   .sld-fs-modal,.sld-fs-modal .sld-track{transition:none!important}
   .sld-fs-modal .sld-btn,.sld-fs-modal .dot,.sld-fs-modal .sld-fs-close{transition:none!important}
@@ -1401,12 +1390,461 @@ function initSlider(sldID, dataset, ease) {
         });
     });
 }
-// [EOF]: ./components/slider/Slider.js
+// [EOF]: ./Slider.js
+;
+// [EOF]: ./components/slider/index.js
+;
+
+// [13:49:12] LOAD: ./components/table/index.js
+// [13:49:12] LOAD: ./Table.js
+// [13:49:12] SKIP (already loaded): ../../utils/genId.js
+;
+
+const DEFAULT_MIN_COL_WIDTH = 'auto';
+
+const DEFAULT_CONFIG = {
+    container: null,
+    dataset: [],
+    columns: [],
+    columnWidths: null,
+    stickyHeader: true,
+    borderCollapse: 'collapse',
+    borderSpacing: '0',
+    isScrolling: false,
+    onRowClick: null,
+    onCellClick: null,
+    classPrefix: 'prxz-tbl',
+    style: {},
+};
+
+/**
+ * Нормализует «интуитивный» конфиг в плоский внутренний формат.
+ * Группы: target/data, columns (key -> { width }), style, on (rowClick, cellClick), scroll.
+ * Старый плоский вызов (container, dataset, columnWidths, onRowClick...) по-прежнему поддерживается.
+ * @param {Object} raw - входящий конфиг (группированный или плоский)
+ * @returns {Object} плоский конфиг для renderTable
+ */
+function normalizeIntuitiveConfig(raw) {
+    if (!raw || typeof raw !== 'object') return { ...DEFAULT_CONFIG };
+
+    const flat = { ...DEFAULT_CONFIG, ...raw };
+
+    // target / container
+    if (raw.target !== undefined) flat.container = raw.target;
+    // data / dataset
+    if (raw.data !== undefined) flat.dataset = raw.data;
+
+    // columns: { 'Колонка': { width: '10%' } } — только ширины/опции, список колонок из data
+    if (raw.columns && typeof raw.columns === 'object' && !Array.isArray(raw.columns)) {
+        const columnWidths = {};
+        for (const [key, opts] of Object.entries(raw.columns)) {
+            const w = opts && (typeof opts === 'string' ? opts : (opts.width ?? opts.w));
+            if (w != null) columnWidths[key] = w;
+        }
+        if (Object.keys(columnWidths).length) flat.columnWidths = { ...flat.columnWidths, ...columnWidths };
+    }
+
+    // style: border, borderRadius, style
+    if (raw.style && typeof raw.style === 'object') {
+        const a = raw.style;
+        if (a.border) {
+            if (a.border.collapse != null) flat.borderCollapse = a.border.collapse;
+            if (a.border.spacing != null) flat.borderSpacing = a.border.spacing;
+        }
+        if (a.borderRadius != null) {
+            flat.style = { ...flat.style, borderRadius: a.borderRadius };
+        }
+        if (a.style && typeof a.style === 'object') {
+            flat.style = { ...flat.style, ...a.style };
+        }
+    }
+
+    // on: { rowClick, cellClick }
+    if (raw.on && typeof raw.on === 'object') {
+        if (typeof raw.on.rowClick === 'function') flat.onRowClick = raw.on.rowClick;
+        if (typeof raw.on.cellClick === 'function') flat.onCellClick = raw.on.cellClick;
+    }
+
+    // scroll: { horizontal: true/false }
+    if (raw.scroll && typeof raw.scroll === 'object' && raw.scroll.horizontal !== undefined) {
+        flat.isScrolling = !!raw.scroll.horizontal;
+    }
+
+    // Плоский вариант: borderRadius и т.д. с верхнего уровня — в style
+    if (raw.borderRadius != null) flat.style = { ...flat.style, borderRadius: raw.borderRadius };
+
+    return flat;
+}
+
+/**
+ * Проверяет, что данные в сыром формате { cols, values }.
+ * @param {*} data
+ * @returns {boolean}
+ */
+function isRawColsValues(data) {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    const first = data[0];
+    return first && Array.isArray(first.cols) && Array.isArray(first.values);
+}
+
+/**
+ * Проверяет формат «обёртка»: ровно один объект с cols и items (имена колонок и массив строк).
+ * Не срабатывает для массива строк вида [ { cols, values }, ... ].
+ * @param {*} data
+ * @returns {boolean}
+ */
+function isWrappedColsItems(data) {
+    if (!Array.isArray(data) || data.length !== 1) return false;
+    const first = data[0];
+    const colNames = first && (Array.isArray(first.cols) || Array.isArray(first.keys));
+    const rowList = first && Array.isArray(first.items);
+    return !!(colNames && rowList);
+}
+
+/**
+ * Разворачивает формат { cols/keys, items } в массив строк и имена колонок.
+ * Элементы items могут быть { values: any[] } или уже объекты-строки { [key]: value }.
+ * @param {Array<{cols?: string[], keys?: string[], items: Array<{values?: *[]}|Object>}>} raw
+ * @returns {{ rows: Object[], columnNames: string[] }}
+ */
+function unwrapColsItems(raw) {
+    const wrapper = raw[0];
+    const columnNames = wrapper.cols || wrapper.keys || [];
+    const items = wrapper.items || [];
+    const rows = items.map((item) => {
+        const pv = Array.isArray(item?.values) ? item.values : null;
+        if (pv) {
+            const row = {};
+            for (let j = 0; j < columnNames.length; j++) row[columnNames[j]] = pv[j];
+            return row;
+        }
+        if (item && typeof item === 'object' && !Array.isArray(item) && !(Array.isArray(item.cols) && 'values' in item)) {
+            return item;
+        }
+        const row = {};
+        const fallback = Array.isArray(item?.values) ? item.values : [];
+        for (let j = 0; j < columnNames.length; j++) row[columnNames[j]] = fallback[j];
+        return row;
+    });
+    return { rows, columnNames };
+}
+
+/**
+ * Преобразует сырой массив { cols, values } в массив объектов-строк (как getDataTable).
+ * @param {Array<{cols: string[], values: *[]}>} raw
+ * @returns {Object[]}
+ */
+function rawToRowObjects(raw) {
+    const out = [];
+    for (const v of raw) {
+        const row = {};
+        const pc = v.cols || [];
+        const pv = v.values || [];
+        for (let j = 0; j < pc.length; j++) {
+            row[pc[j]] = pv[j];
+        }
+        out.push(row);
+    }
+    return out;
+}
+
+/**
+ * Нормализует конфиг: колонки могут быть строками (ключ) или объектами { key, label?, width? }.
+ * @param {Array<string|{key: string, label?: string, width?: string|number}>} columns
+ * @returns {{key: string, label: string, width: string}[]}
+ */
+function normalizeColumns(columns) {
+    if (!Array.isArray(columns) || columns.length === 0) return [];
+    return columns.map((col) => {
+        if (typeof col === 'string') {
+            return { key: col, label: col, width: '' };
+        }
+        const key = col.key || col.field || '';
+        const label = col.label != null ? col.label : key;
+        let width = col.width != null ? col.width : '';
+        if (typeof width === 'number') width = width + 'px';
+        return { key, label, width: String(width) };
+    });
+}
+
+/**
+ * Рендер таблицы в контейнер.
+ *
+ * Интуитивный вызов (всё по группам):
+ *   renderTable({
+ *     target: elementOrId,
+ *     data: items,
+ *     columns: { 'РНГИО': { width: '10%' } },
+ *     style: { border: { collapse: 'separate', spacing: '0.5em 0.5em' }, borderRadius: '20px' },
+ *     scroll: { horizontal: false },
+ *     on: { rowClick(row, rowIndex) { ... } },
+ *   })
+ *
+ * Классический вызов: renderTable(container, dataset, config) или renderTable({ container, dataset, ... }).
+ *
+ * @param {string|HTMLElement|Object} containerOrConfig - id/элемент или конфиг (target/data, columns, style, on, scroll)
+ * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк или сырой формат { cols, values }
+ * @param {Object} [config] - конфиг при вызове (container, dataset)
+ * @param {Array<string|{key, label?, width?}>} [config.columns] - колонки
+ * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу
+ * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок
+ * @param {boolean} [config.isScrolling=false] - горизонтальная прокрутка
+ * @param {string} [config.borderCollapse] - 'collapse' | 'separate'
+ * @param {string} [config.borderSpacing] - при separate
+ * @param {function(row, rowIndex)} [config.onRowClick]
+ * @param {function(row, cellKey, value, rowIndex)} [config.onCellClick]
+ * @param {Object} [config.style] - стили обёртки
+ */
+function renderTable(containerOrConfig, dataset, config = {}) {
+    let container;
+    let data;
+    let cfg;
+    if (containerOrConfig && typeof containerOrConfig === 'object' && !containerOrConfig.nodeType && (containerOrConfig.dataset !== undefined || containerOrConfig.data !== undefined)) {
+        cfg = normalizeIntuitiveConfig(containerOrConfig);
+        container = cfg.container;
+        data = Array.isArray(cfg.dataset) ? cfg.dataset : [];
+    } else {
+        container = containerOrConfig;
+        data = Array.isArray(dataset) ? dataset : [];
+        cfg = { ...DEFAULT_CONFIG, ...config };
+    }
+    // Плоский конфиг: borderRadius и т.д. в style
+    if (cfg.borderRadius != null && !cfg.style) cfg.style = {};
+    if (cfg.borderRadius != null) cfg.style = { ...cfg.style, borderRadius: cfg.borderRadius };
+    let columns = normalizeColumns(cfg.columns);
+
+    if (isRawColsValues(data)) {
+        data = rawToRowObjects(data);
+    } else if (isWrappedColsItems(data)) {
+        const { rows, columnNames } = unwrapColsItems(data);
+        data = rows;
+        if (columns.length === 0 && columnNames.length > 0) {
+            columns = columnNames.map((k) => ({ key: k, label: k, width: '' }));
+        }
+    }
+
+    const tableId = genId();
+    const prefix = cfg.classPrefix;
+
+    const el = typeof container === 'string' ? document.getElementById(container) : container;
+    if (!el) return;
+
+    if (columns.length === 0 && data.length > 0) {
+        const first = data[0];
+        const keys = Object.keys(first);
+        columns.push(...keys.map((k) => ({ key: k, label: k, width: '' })));
+    } else if (columns.length === 0) {
+        el.innerHTML = '';
+        return;
+    }
+
+    const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
+    if (widths) {
+        columns.forEach((col) => {
+            const x = widths[col.key] ?? widths[col.label];
+            if (x != null && x !== '') col.width = typeof x === 'number' ? x + 'px' : String(x);
+        });
+    }
+
+    const html = buildTableHTML(tableId, prefix, data, columns, cfg);
+    el.innerHTML = html;
+    initTableEvents(el, tableId, prefix, data, cfg);
+}
+
+function buildTableHTML(tableId, prefix, data, columns, cfg) {
+    const stickyHeader = cfg.stickyHeader !== false;
+    const isScrolling = cfg.isScrolling === true;
+    const wrapperStyle = { borderRadius: '12px', overflow: 'hidden', ...(cfg.style || {}) };
+    const wrapperStyleStr = Object.entries(wrapperStyle)
+        .map(([k, v]) => `${k.replace(/([A-Z])/g, '-$1').toLowerCase()}:${v}`)
+        .join(';');
+
+    const scrollStyle = `flex: 1; min-height: 0; overflow-x: ${isScrolling ? 'auto' : 'hidden'}; overflow-y: auto;`;
+
+    let thStyle = 'padding: 10px 12px; text-align: left; font-weight: 600; white-space: nowrap;';
+    if (stickyHeader) {
+        thStyle += ' position: sticky; top: 0; z-index: 2; background: var(--tbl-head-bg, #1e2a4a); box-shadow: 0 1px 0 var(--tbl-border, rgba(255,255,255,.08));';
+    }
+
+    const colgroup = columns
+        .map((col) => {
+            if (!isScrolling && col.width) return `<col style="width:${escapeAttr(col.width)}">`;
+            if (isScrolling) return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
+            return `<col>`;
+        })
+        .join('');
+    const headerCells = columns
+        .map((col) => {
+            console.log(col,'col')
+            
+            let w = '';
+            if (isScrolling) {
+                w = col.width
+                    ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
+                    : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+            }
+            
+            return `<th class="${prefix}-th" style="${thStyle} ${w}" title="${escapeHtml(col.label)}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
+        })
+        .join('');
+    const rows = data.map((row, rowIndex) => {
+        const cells = columns
+            .map((col) => {
+                const value = row[col.key];
+                const text = value != null ? String(value) : '';
+                let w = '';
+                if (isScrolling) {
+                    w = col.width
+                        ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
+                        : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
+                }
+                return `<td class="${prefix}-td" style="padding: 10px 12px; ${w}" data-col="${escapeAttr(col.key)}" data-row-index="${rowIndex}">${escapeHtml(text)}</td>`;
+            })
+            .join('');
+        const clickable = cfg.onRowClick || cfg.onCellClick ? ` ${prefix}-row-clickable` : '';
+        return `<tr class="${prefix}-tr${clickable}" data-row-index="${rowIndex}">${cells}</tr>`;
+    }).join('');
+
+    const hasExplicitWidths = isScrolling && columns.some((col) => col.width);
+    const tableWidthStyle = hasExplicitWidths
+        ? 'width: max-content; min-width: 100%;'
+        : 'width: 100%;';
+    const tableLayoutStyle = isScrolling ? 'table-layout: auto;' : 'table-layout: fixed;';
+    const borderCollapse = cfg.borderCollapse === 'separate' ? 'separate' : 'collapse';
+    const borderSpacing = cfg.borderCollapse === 'separate' ? (cfg.borderSpacing || '0.5em 0.5em') : '0';
+    const tableBorderStyle = `border-collapse: ${borderCollapse}; border-spacing: ${borderSpacing};`;
+
+    return `
+<div id="tbl-wrap-${tableId}" class="${prefix}-wrap" style="${wrapperStyleStr}; display: flex; flex-direction: column; height: 100%; min-height: 0;">
+  <div class="${prefix}-scroll" style="${scrollStyle}">
+    <table id="tbl-${tableId}" class="${prefix}-table" style="${tableWidthStyle} ${tableBorderStyle} ${tableLayoutStyle}">
+      <colgroup>${colgroup}</colgroup>
+      <thead class="${prefix}-thead">
+        <tr class="${prefix}-tr ${prefix}-tr-head">${headerCells}</tr>
+      </thead>
+      <tbody class="${prefix}-tbody">${rows}</tbody>
+    </table>
+  </div>
+</div>
+<style>${tableStyles(prefix)}</style>`;
+}
+
+function escapeAttr(s) {
+    if (s == null) return '';
+    const str = String(s);
+    return str.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function escapeHtml(s) {
+    if (s == null) return '';
+    const str = String(s);
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function tableStyles(prefix) {
+    return `
+.${prefix}-wrap {
+  --tbl-head-bg: rgb(18 32 66 / 0.95);
+  --tbl-row-bg: rgb(39 43 76);
+  --tbl-row-hover: rgba(255,255,255,.06);
+  --tbl-border: rgba(255,255,255,.08);
+  --tbl-text: rgba(255,255,255,.92);
+  --tbl-text-muted: rgba(255,255,255,.65);
+  background: rgb(18 32 66 / 0.71);
+}
+
+/* Стили для скролла внутри этого конкретного контейнера */
+.${prefix}-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.${prefix}-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.${prefix}-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+}
+
+.${prefix}-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.${prefix}-table {
+  color: var(--tbl-text);
+  font-size: 14px;
+}
+.${prefix}-thead .${prefix}-tr-head {
+  background: var(--tbl-head-bg);
+  color: var(--tbl-text);
+}
+.${prefix}-tbody .${prefix}-tr {
+  background: var(--tbl-row-bg);
+  transition: background .15s ease;
+}
+.${prefix}-tbody .${prefix}-tr:nth-child(even) {
+  background: color-mix(in srgb, var(--tbl-row-bg) 95%, white);
+}
+.${prefix}-row-clickable {
+  cursor: pointer;
+}
+.${prefix}-tbody .${prefix}-row-clickable:hover {
+  background: color-mix(in srgb, var(--tbl-row-bg) 88%, white) !important;
+}
+.${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected,
+.${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected:nth-child(even) {
+  background: var(--tbl-row-selected, rgba(255, 200, 80, 0.25)) !important;
+}
+.${prefix}-th, .${prefix}-td {
+  border-bottom: 1px solid var(--tbl-border);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.${prefix}-td {
+  color: var(--tbl-text-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  .${prefix}-tbody .${prefix}-tr { transition: none; }
+}
+`;
+}
+
+function initTableEvents(wrapEl, tableId, prefix, data, cfg) {
+    const tbody = wrapEl.querySelector(`.${prefix}-tbody`);
+    if (!tbody || (!cfg.onRowClick && !cfg.onCellClick)) return;
+
+    tbody.addEventListener('click', (e) => {
+        const tr = e.target.closest(`.${prefix}-tr`);
+        if (!tr || tr.classList.contains(`${prefix}-tr-head`)) return;
+        const rowIndex = parseInt(tr.getAttribute('data-row-index'), 10);
+        if (rowIndex < 0 || rowIndex >= data.length) return;
+        const row = data[rowIndex];
+
+        tbody.querySelectorAll(`.${prefix}-tr.${prefix}-tr-selected`).forEach((r) => r.classList.remove(`${prefix}-tr-selected`));
+        tr.classList.add(`${prefix}-tr-selected`);
+
+        const td = e.target.closest(`.${prefix}-td`);
+        if (td && typeof cfg.onCellClick === 'function') {
+            const cellKey = td.getAttribute('data-col') || '';
+            const value = row[cellKey];
+            cfg.onCellClick(row, cellKey, value, rowIndex);
+        }
+        if (typeof cfg.onRowClick === 'function') {
+            cfg.onRowClick(row, rowIndex);
+        }
+    });
+}
+// [EOF]: ./Table.js
+;
+// [EOF]: ./components/table/index.js
 ;
 
 
-// [14:12:34] LOAD: ./api/indexVisi.js
-// [14:12:34] LOAD: ./visiology/getMetricsMono
+// [13:49:12] LOAD: ./api/indexVisi.js
+// [13:49:12] LOAD: ./visiology/getMetricsMono
 /**
  * Получает метрики мониторинга из одной рабочей области (в которой находится)
  * 
@@ -1436,7 +1874,7 @@ function initSlider(sldID, dataset, ease) {
  */
 
 
-// [14:12:34] LOAD: ../utils/getAccessToken
+// [13:49:12] LOAD: ../utils/getAccessToken
 /**
  * Извлекает access token из sessionStorage по указанному ключу
  * 
@@ -1508,7 +1946,7 @@ function getAccessToken(p) {
 // [EOF]: ../utils/getAccessToken
 ;
 
-// [14:12:34] LOAD: ../utils/getMonoPath
+// [13:49:12] LOAD: ../utils/getMonoPath
 /**
  * Формирует URL-адреса для доступа к API на основе текущего домена и workspaceId
  * 
@@ -1609,7 +2047,7 @@ function getMonoPath() {
 // [EOF]: ../utils/getMonoPath
 ;
 
-// [14:12:34] LOAD: ../utils/groupDatasets
+// [13:49:12] LOAD: ../utils/groupDatasets
 /**
  * Группирует шедулеры с привязанными к ним дашбордами
  * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
@@ -1668,7 +2106,7 @@ function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/groupDatasets
 ;
 
-// [14:12:34] LOAD: ../utils/checkDeadShedulers
+// [13:49:12] LOAD: ../utils/checkDeadShedulers
 /**
  * Проверяет и идентифицирует "мертвые" шедулеры (неработающие планировщики)
  * 
@@ -1735,7 +2173,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/checkDeadShedulers
 ;
 
-// [14:12:34] LOAD: ../utils/getShedulersMore
+// [13:49:12] LOAD: ../utils/getShedulersMore
 /**
  * Обогащает данные шедулеров дополнительной информацией из API
  * 
@@ -1953,11 +2391,11 @@ async function getMetricsMono() {
 ;
 // [EOF]: ./visiology/getMetricsMono
 
-// [14:12:34] SKIP (already loaded): ./utils/getAccessToken
+// [13:49:12] SKIP (already loaded): ./utils/getAccessToken
 
-// [14:12:34] SKIP (already loaded): ./utils/getShedulersMore
+// [13:49:12] SKIP (already loaded): ./utils/getShedulersMore
 
-// [14:12:34] SKIP (already loaded): ./utils/groupDatasets
+// [13:49:12] SKIP (already loaded): ./utils/groupDatasets
 
 
 const visi = {
@@ -1992,10 +2430,11 @@ const prxz = {
         },
     },
     comp: {
-        photo: {
-            slider: {
-                render: renderSlider,
-            },
+        table: {
+            render: renderTable,
+        },
+        slider: {
+            render: renderSlider,
         },
     },
 };

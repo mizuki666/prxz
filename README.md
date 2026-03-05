@@ -4,8 +4,8 @@
 <p align="left">
     <img src="https://img.shields.io/badge/version-1.0.1-blue" alt="Version">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-    <img src="https://img.shields.io/badge/minified-27404%20bytes-brightgreen" alt="Size">
-    <img src="https://img.shields.io/badge/compression-65.6%25-orange" alt="Compression">
+    <img src="https://img.shields.io/badge/minified-35090%20bytes-brightgreen" alt="Size">
+    <img src="https://img.shields.io/badge/compression-63.6%25-orange" alt="Compression">
     <a href="https://github.com/mizuki666/prxz"><img src="https://img.shields.io/badge/github-mizuki666-black" alt="GitHub"></a>
 </p>
 
@@ -14,29 +14,15 @@
 <div>Это легковесная JS библа для visiology, рожденная из моей лени.</div>
 <div>Собрана с помощью кастомного бандлера с поддержкой ES6 модулей.</div>
 
-## Структура и использование
-
-Публичный API — один объект `prxz`:
-
-| Раздел | Назначение |
-|--------|------------|
-| `prxz.comp.table.render(config)` | Таблица (данные из `cols`/`values`, липкий заголовок, клики по строке/ячейке) |
-| `prxz.comp.slider.render(container, urls, options)` | Слайдер изображений |
-| `prxz.api.visi` | API visiology |
-| `prxz.lg` | Логгер |
-| `prxz.frm.v` / `prxz.frm.d` | Форматтеры значений и дат |
-
-Подробнее: [ARCHITECTURE.md](ARCHITECTURE.md).
-
 ## Статистика сборки
 
 - **Версия**: 1.0.1
-- **Дата сборки**: 04.03.2026, 14:12:36
-- **ID сборки**: `19cb9317ea3`
-- **Файлов обработано**: 21
-- **Размер исходный**: 79,672 байт
-- **Размер минифицированный**: 27,404 байт
-- **Сжатие**: 65.6%
+- **Дата сборки**: 05.03.2026, 13:49:14
+- **ID сборки**: `19cbe42758a`
+- **Файлов обработано**: 24
+- **Размер исходный**: 96,435 байт
+- **Размер минифицированный**: 35,090 байт
+- **Сжатие**: 63.6%
 
 ## Установка
 
@@ -48,7 +34,7 @@
 
 ---
 
-> Собрано: 2026-03-04T14:12:36.282Z
+> Собрано: 2026-03-05T13:49:14.546Z
 > Бандлер: [bundler/](bundler/)
 > Файлов с ошибками: 0
 
