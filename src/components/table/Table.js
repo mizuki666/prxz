@@ -12,6 +12,36 @@ const DEFAULT_CONFIG = {
 };
 
 /**
+ * Проверяет, что данные в сыром формате { cols, values }.
+ * @param {*} data
+ * @returns {boolean}
+ */
+function isRawColsValues(data) {
+    if (!Array.isArray(data) || data.length === 0) return false;
+    const first = data[0];
+    return first && Array.isArray(first.cols) && Array.isArray(first.values);
+}
+
+/**
+ * Преобразует сырой массив { cols, values } в массив объектов-строк (как getDataTable).
+ * @param {Array<{cols: string[], values: *[]}>} raw
+ * @returns {Object[]}
+ */
+function rawToRowObjects(raw) {
+    const out = [];
+    for (const v of raw) {
+        const row = {};
+        const pc = v.cols || [];
+        const pv = v.values || [];
+        for (let j = 0; j < pc.length; j++) {
+            row[pc[j]] = pv[j];
+        }
+        out.push(row);
+    }
+    return out;
+}
+
+/**
  * Нормализует конфиг: колонки могут быть строками (ключ) или объектами { key, label?, width? }.
  * @param {Array<string|{key: string, label?: string, width?: string|number}>} columns
  * @returns {{key: string, label: string, width: string}[]}
@@ -33,10 +63,10 @@ function normalizeColumns(columns) {
 /**
  * Рендер таблицы в контейнер.
  * Вызов: renderTable(container, dataset, config) или renderTable({ container, dataset, ...config }).
- * @param {string|HTMLElement|Object} containerOrConfig - id/элемент контейнера или единый конфиг { container, dataset, columns, ... }
- * @param {Object[]} [dataset] - массив объектов-строк (если первый аргумент не конфиг)
+ * @param {string|HTMLElement|Object} containerOrConfig - id/элемент контейнера или единый конфиг { container, dataset, columns?, ... }
+ * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк { key: value } или сырой формат { cols, values } (имена столбцов из cols)
  * @param {Object} [config] - конфиг (если первый аргумент — container)
- * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (key, label, width)
+ * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (необязательно: автоматом из данных)
  * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок при прокрутке
  * @param {function(row: Object, rowIndex: number)} [config.onRowClick] - клик по строке
  * @param {function(row: Object, cellKey: string, value: *, rowIndex: number)} [config.onCellClick] - клик по ячейке
@@ -54,6 +84,9 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
         container = containerOrConfig;
         data = Array.isArray(dataset) ? dataset : [];
         cfg = { ...DEFAULT_CONFIG, ...config };
+    }
+    if (isRawColsValues(data)) {
+        data = rawToRowObjects(data);
     }
     const columns = normalizeColumns(cfg.columns);
     const tableId = genId();

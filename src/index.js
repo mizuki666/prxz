@@ -30,7 +30,11 @@ const prxz = {
                 render: renderSlider,
             },
         },
-        table: renderTable
+        table: {
+            simple:{
+                render: renderTable
+            }
+        }
     },
 };
 

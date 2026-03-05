@@ -5,18 +5,13 @@ info(prxz);
 const wGuid = w.general.renderTo;
 const filterID = '251f3ed2c2824e18af0c15ee4e040eb3';
 
-const dataset = getDataTable(w.data.primaryData.items);
-info(dataset);
+// Можно передать сырые данные { cols, values } — таблица сама возьмёт имена столбцов из cols
+const dataset = w.data.primaryData.items;
 
-// Колонки: key — совпадает с ключами из getDataTable (из v.cols); width — по желанию (px или %)
 const tableConfig = {
     container: wGuid,
     dataset,
-    columns: [
-        { key: 'name', label: 'Наименование', width: '25%' },
-        { key: 'value', label: 'Значение', width: '15%' },
-        { key: 'mass', label: 'Масса', width: '120px' },
-    ],
+    // columns не задаём — подхватятся из cols; при необходимости задайте ширины: columns: [{ key: 'mass', width: '120px' }, ...]
     stickyHeader: true,
     style: {
         borderRadius: '20px',
@@ -24,7 +19,7 @@ const tableConfig = {
         padding: '10px',
     },
     onRowClick(row, rowIndex) {
-        const rngio = row.mass; // или другое поле для фильтра (раньше data-mass)
+        const rngio = row.mass; // ключ как в cols; при необходимости замените на нужное поле
         if (rngio != null && typeof visApi === 'function') {
             visApi().setFilterSelectedValues(filterID, [[rngio]], function () {});
         }
