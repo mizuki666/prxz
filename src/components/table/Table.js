@@ -10,13 +10,74 @@ const DEFAULT_CONFIG = {
     stickyHeader: true,
     borderCollapse: 'collapse',
     borderSpacing: '0',
-    /** Если true — разрешена горизонтальная прокрутка; если false — таблица всегда влезает в контейнер, столбцы подстраиваются */
     isScrolling: false,
     onRowClick: null,
     onCellClick: null,
     classPrefix: 'prxz-tbl',
     style: {},
 };
+
+/**
+ * Нормализует «интуитивный» конфиг в плоский внутренний формат.
+ * Группы: target/data, columns (key -> { width }), appearance, on (rowClick, cellClick), scroll.
+ * Старый плоский вызов (container, dataset, columnWidths, onRowClick...) по-прежнему поддерживается.
+ * @param {Object} raw - входящий конфиг (группированный или плоский)
+ * @returns {Object} плоский конфиг для renderTable
+ */
+function normalizeIntuitiveConfig(raw) {
+    if (!raw || typeof raw !== 'object') return { ...DEFAULT_CONFIG };
+
+    const flat = { ...DEFAULT_CONFIG, ...raw };
+
+    // target / container
+    if (raw.target !== undefined) flat.container = raw.target;
+    // data / dataset
+    if (raw.data !== undefined) flat.dataset = raw.data;
+
+    // columns: { 'Колонка': { width: '10%' } } -> columnWidths + опционально columns
+    if (raw.columns && typeof raw.columns === 'object' && !Array.isArray(raw.columns)) {
+        const columnWidths = {};
+        const columnList = [];
+        for (const [key, opts] of Object.entries(raw.columns)) {
+            columnList.push(typeof opts === 'string' ? { key, label: key, width: opts } : { key, label: key, ...opts });
+            const w = opts && (opts.width ?? opts.w);
+            if (w != null) columnWidths[key] = w;
+        }
+        if (columnList.length) flat.columns = columnList;
+        if (Object.keys(columnWidths).length) flat.columnWidths = { ...flat.columnWidths, ...columnWidths };
+    }
+
+    // appearance: border, borderRadius, style
+    if (raw.appearance && typeof raw.appearance === 'object') {
+        const a = raw.appearance;
+        if (a.border) {
+            if (a.border.collapse != null) flat.borderCollapse = a.border.collapse;
+            if (a.border.spacing != null) flat.borderSpacing = a.border.spacing;
+        }
+        if (a.borderRadius != null) {
+            flat.style = { ...flat.style, borderRadius: a.borderRadius };
+        }
+        if (a.style && typeof a.style === 'object') {
+            flat.style = { ...flat.style, ...a.style };
+        }
+    }
+
+    // on: { rowClick, cellClick }
+    if (raw.on && typeof raw.on === 'object') {
+        if (typeof raw.on.rowClick === 'function') flat.onRowClick = raw.on.rowClick;
+        if (typeof raw.on.cellClick === 'function') flat.onCellClick = raw.on.cellClick;
+    }
+
+    // scroll: { horizontal: true/false }
+    if (raw.scroll && typeof raw.scroll === 'object' && raw.scroll.horizontal !== undefined) {
+        flat.isScrolling = !!raw.scroll.horizontal;
+    }
+
+    // Плоский вариант: borderRadius и т.д. с верхнего уровня — в style
+    if (raw.borderRadius != null) flat.style = { ...flat.style, borderRadius: raw.borderRadius };
+
+    return flat;
+}
 
 /**
  * Проверяет, что данные в сыром формате { cols, values }.
@@ -111,26 +172,38 @@ function normalizeColumns(columns) {
 
 /**
  * Рендер таблицы в контейнер.
- * Вызов: renderTable(container, dataset, config) или renderTable({ container, dataset, ...config }).
- * @param {string|HTMLElement|Object} containerOrConfig - id/элемент контейнера или единый конфиг { container, dataset, columns?, ... }
- * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк { key: value } или сырой формат { cols, values } (имена столбцов из cols)
- * @param {Object} [config] - конфиг (если первый аргумент — container)
- * @param {Array<string|{key: string, label?: string, width?: string|number}>} [config.columns] - колонки (необязательно: автоматом из данных)
- * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу колонки (при авто-колонках), например { 'РНГИО': '120px' }
- * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок при прокрутке
- * @param {boolean} [config.isScrolling=false] - если true, разрешена горизонтальная прокрутка; иначе таблица влезает в контейнер, столбцы подстраиваются
- * @param {string} [config.borderCollapse='collapse'] - 'collapse' | 'separate'
- * @param {string} [config.borderSpacing] - при borderCollapse:'separate' отступ между ячейками, например '0.5em 0.5em'
- * @param {function(row: Object, rowIndex: number)} [config.onRowClick] - клик по строке
- * @param {function(row: Object, cellKey: string, value: *, rowIndex: number)} [config.onCellClick] - клик по ячейке
- * @param {Object} [config.style] - доп. стили обёртки (backgroundColor, borderRadius и т.д.)
+ *
+ * Интуитивный вызов (всё по группам):
+ *   renderTable({
+ *     target: elementOrId,
+ *     data: items,
+ *     columns: { 'РНГИО': { width: '10%' } },
+ *     appearance: { border: { collapse: 'separate', spacing: '0.5em 0.5em' }, borderRadius: '20px' },
+ *     scroll: { horizontal: false },
+ *     on: { rowClick(row, rowIndex) { ... } },
+ *   })
+ *
+ * Классический вызов: renderTable(container, dataset, config) или renderTable({ container, dataset, ... }).
+ *
+ * @param {string|HTMLElement|Object} containerOrConfig - id/элемент или конфиг (target/data, columns, appearance, on, scroll)
+ * @param {Object[]|Array<{cols: string[], values: *[]}>} [dataset] - массив строк или сырой формат { cols, values }
+ * @param {Object} [config] - конфиг при вызове (container, dataset)
+ * @param {Array<string|{key, label?, width?}>} [config.columns] - колонки
+ * @param {Object.<string, string|number>} [config.columnWidths] - ширины по ключу
+ * @param {boolean} [config.stickyHeader=true] - закреплённый заголовок
+ * @param {boolean} [config.isScrolling=false] - горизонтальная прокрутка
+ * @param {string} [config.borderCollapse] - 'collapse' | 'separate'
+ * @param {string} [config.borderSpacing] - при separate
+ * @param {function(row, rowIndex)} [config.onRowClick]
+ * @param {function(row, cellKey, value, rowIndex)} [config.onCellClick]
+ * @param {Object} [config.style] - стили обёртки
  */
 export function renderTable(containerOrConfig, dataset, config = {}) {
     let container;
     let data;
     let cfg;
-    if (containerOrConfig && typeof containerOrConfig === 'object' && !containerOrConfig.nodeType && containerOrConfig.dataset !== undefined) {
-        cfg = { ...DEFAULT_CONFIG, ...containerOrConfig };
+    if (containerOrConfig && typeof containerOrConfig === 'object' && !containerOrConfig.nodeType && (containerOrConfig.dataset !== undefined || containerOrConfig.data !== undefined)) {
+        cfg = normalizeIntuitiveConfig(containerOrConfig);
         container = cfg.container;
         data = Array.isArray(cfg.dataset) ? cfg.dataset : [];
     } else {
@@ -138,6 +211,9 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
         data = Array.isArray(dataset) ? dataset : [];
         cfg = { ...DEFAULT_CONFIG, ...config };
     }
+    // Плоский конфиг: borderRadius и т.д. в style
+    if (cfg.borderRadius != null && !cfg.style) cfg.style = {};
+    if (cfg.borderRadius != null) cfg.style = { ...cfg.style, borderRadius: cfg.borderRadius };
     let columns = normalizeColumns(cfg.columns);
 
     if (isRawColsValues(data)) {
@@ -168,8 +244,8 @@ export function renderTable(containerOrConfig, dataset, config = {}) {
     const widths = cfg.columnWidths && typeof cfg.columnWidths === 'object' ? cfg.columnWidths : null;
     if (widths) {
         columns.forEach((col) => {
-            const w = widths[col.key] ?? widths[col.label];
-            if (w != null && w !== '') col.width = typeof w === 'number' ? w + 'px' : String(w);
+            const x = widths[col.key] ?? widths[col.label];
+            if (x != null && x !== '') col.width = typeof x === 'number' ? x + 'px' : String(x);
         });
     }
 
@@ -192,40 +268,35 @@ function buildTableHTML(tableId, prefix, data, columns, cfg) {
     if (stickyHeader) {
         thStyle += ' position: sticky; top: 0; z-index: 2; background: var(--tbl-head-bg, #1e2a4a); box-shadow: 0 1px 0 var(--tbl-border, rgba(255,255,255,.08));';
     }
+
     const colgroup = columns
         .map((col) => {
-            if (col.width) return `<col style="width:${escapeAttr(col.width)}">`;
+            if (!isScrolling && col.width) return `<col style="width:${escapeAttr(col.width)}">`;
             if (isScrolling) return `<col style="min-width:${DEFAULT_MIN_COL_WIDTH}">`;
             return `<col>`;
         })
         .join('');
-
     const headerCells = columns
         .map((col) => {
             let w = '';
-            if (col.width) {
-                w = isScrolling
+            if (isScrolling) {
+                w = col.width
                     ? `width:${col.width};min-width:${col.width};max-width:${col.width};`
-                    : `width:${col.width};`;
-            } else if (isScrolling) {
-                w = `min-width:${DEFAULT_MIN_COL_WIDTH};`;
+                    : `min-width:${DEFAULT_MIN_COL_WIDTH};`;
             }
             return `<th class="${prefix}-th" style="${thStyle} ${w}" data-col="${escapeAttr(col.key)}">${escapeHtml(col.label)}</th>`;
         })
         .join('');
-
     const rows = data.map((row, rowIndex) => {
         const cells = columns
             .map((col) => {
                 const value = row[col.key];
                 const text = value != null ? String(value) : '';
                 let w = '';
-                if (col.width) {
-                    w = isScrolling
+                if (isScrolling) {
+                    w = col.width
                         ? `width: ${col.width}; min-width: ${col.width}; max-width: ${col.width};`
-                        : `width: ${col.width};`;
-                } else if (isScrolling) {
-                    w = `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
+                        : `min-width: ${DEFAULT_MIN_COL_WIDTH};`;
                 }
                 return `<td class="${prefix}-td" style="padding: 10px 12px; ${w}" data-col="${escapeAttr(col.key)}" data-row-index="${rowIndex}">${escapeHtml(text)}</td>`;
             })
