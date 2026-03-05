@@ -20,12 +20,8 @@ const prxz = {
     },
     func: {
         other: {
-<<<<<<< HEAD
-            FilterReplaceText
-=======
             FilterReplaceText,
             genId
->>>>>>> 97f40b0784099f5db4f11486c8e97518e99094a2
         },
     },
     comp: {
@@ -33,13 +29,8 @@ const prxz = {
             slider: {
                 render: renderSlider,
             },
-<<<<<<< HEAD
         },
-        table: {
-            render: renderTable,
-=======
->>>>>>> 97f40b0784099f5db4f11486c8e97518e99094a2
-        },
+        table: renderTable
     },
 };
 
