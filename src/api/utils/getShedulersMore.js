@@ -12,7 +12,7 @@
  * @param {Object} dataShedulers[] - Объект шедулера
  * @param {string} dataShedulers[].id - Уникальный идентификатор шедулера
  * @param {boolean} dataShedulers[].isEnabled - Флаг активности шедулера
- * @param {string} moreInfoLink - Базовый URL для запросов детальной информации (должен быть определен в области видимости)
+ * @param {string} [moreInfoLink] - Базовый URL для запросов детальной информации. Если не передан — будет получен через getMonoPath().
  * 
  * @returns {Promise<Array>} Массив обогащенных данных шедулеров с дополнительными полями:
  * @returns {Object} returns[] - Обогащенный объект шедулера
@@ -49,7 +49,23 @@
  * - При сетевых ошибках возвращает null значения и логирует ошибку
  * - Не прерывает выполнение при ошибках отдельных шедулеров
  */
-async function getShedulersMore(accessToken, dataShedulers) {
+import { getMonoPath } from './getMonoPath.js';
+
+async function getShedulersMore(accessToken, dataShedulers, moreInfoLink) {
+    // Совместимость с бандлом: в dist/prxz.min.js moreInfoLink "приходит" из внешнего скоупа.
+    // В исходниках делаем этот параметр опциональным и можем вычислить его на основе текущего URL.
+    if (moreInfoLink == null || moreInfoLink === '') {
+        try {
+            moreInfoLink = getMonoPath().moreInfoLink;
+        } catch (_) {
+            // noop
+        }
+    }
+
+    if (moreInfoLink == null || moreInfoLink === '') {
+        throw new Error('getShedulersMore: moreInfoLink is required');
+    }
+
     // Инициализация массива для хранения обогащенных данных
     const shedulersWithMoreInfo = [];
     

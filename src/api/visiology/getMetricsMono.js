@@ -87,7 +87,7 @@ async function getMetricsMono() {
 
     // Обогащение данных шедулеров дополнительной информацией
     // Это позволяет получить более полную картину о каждом шедулере
-    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
+    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers, moreInfoLink);
 
     // Группировка датасетов для структурированного представления данных
     // Объединяет данные шедулеров и дашбордов в логические группы

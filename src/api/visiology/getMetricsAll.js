@@ -1,11 +1,11 @@
 import { getAccessToken } from "../utils/getAccessToken";
-import { getAnyPath } from "../utils/getMonoPath";
+import { getMonoPath } from "../utils/getMonoPath";
 import { groupDatasets } from "../utils/groupDatasets";
 import { checkerDeadshedulers } from "../utils/checkDeadShedulers";
 import { getShedulersMore } from "../utils/getShedulersMore";
 
 async function getMetricsAll(){
-    const path = getAnyPath()
+    const path = getMonoPath()
     const {shedulersLink, dashesLink, moreInfoLink, keyPath} = path
     //console.log(keyPath) // --- временно убрать
     const token = getAccessToken(keyPath)
@@ -44,7 +44,7 @@ async function getMetricsAll(){
         responseMetrics ? responseMetrics.json() : Promise.resolve(null)
     ]);
     // console.log('---СТАРТ getShedulersMore')
-    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers);
+    const shedulersWithMoreInfo = await getShedulersMore(token, dataShedulers, moreInfoLink);
 
     // console.log('---СТАРТ groupDatasets')
     const groupedData = groupDatasets(shedulersWithMoreInfo, dataDashboards);

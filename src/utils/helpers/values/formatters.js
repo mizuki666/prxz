@@ -1,4 +1,6 @@
 // formatters.js
+import { Validators } from './validators.js';
+
 export const Formatters = {
     narrowNoBreakSpace: '\u202F',
 
@@ -97,3 +99,5 @@ export const Formatters = {
         return result;
     }
 };
+
+export default Formatters;
