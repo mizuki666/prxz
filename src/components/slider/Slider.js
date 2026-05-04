@@ -8,23 +8,24 @@ const SVG_CLOSE = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" s
 /**
  * Рендер слайдера в контейнер.
  * @param {string|HTMLElement} container - id элемента или сам DOM-элемент
- * @param {string[]} imageUrls - массив URL изображений
- * @param {{ ease?: string }} [options] - опции (ease для анимации)
+ * @param {string[]} imageUrls - массив URL изображений или base64 строк
+ * @param {{ ease?: string, isB64?: boolean }} [options] - опции (ease для анимации, isB64 для base64)
  */
 export function renderSlider(container, imageUrls, options = {}) {
     const dataset = Array.isArray(imageUrls) ? imageUrls : [];
     const ease = options.ease || EASE;
+    const isB64 = options.isB64 || false;
     const sldID = genId();
 
     const el = typeof container === 'string' ? document.getElementById(container) : container;
     if (!el) return;
 
-    const html = buildSliderHTML(sldID, dataset, ease);
+    const html = buildSliderHTML(sldID, dataset, ease, isB64);
     el.innerHTML = html;
-    initSlider(sldID, dataset, ease);
+    initSlider(sldID, dataset, ease, isB64);
 }
 
-function buildSliderHTML(sldID, dataset, ease) {
+function buildSliderHTML(sldID, dataset, ease, isB64) {
     let slides = '';
     if (dataset.length > 0) {
         slides += `<div class="slide"><img src="${dataset[dataset.length - 1]}" alt=""></div>`;
@@ -32,7 +33,8 @@ function buildSliderHTML(sldID, dataset, ease) {
         return `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:white;font-size:24px;font-weight:bold;">Нет данных</div>`
     }
     dataset.forEach((img, i) => {
-        slides += `<div class="slide"><img src="${img}" alt="slide ${i + 1}" class="sld-img" data-src="${img}"></div>`;
+        const imgClass = isB64 ? 'sld-img sld-b64' : 'sld-img';
+        slides += `<div class="slide"><img src="${img}" alt="slide ${i + 1}" class="${imgClass}" data-src="${img}"></div>`;
     });
     if (dataset.length > 0) {
         slides += `<div class="slide"><img src="${dataset[0]}" alt=""></div>`;
@@ -44,11 +46,14 @@ function buildSliderHTML(sldID, dataset, ease) {
         <button class="sld-btn next" type="button" aria-label="Вперёд">${SVG_NEXT}</button>
         <div class="sld-dots"></div>
     </div>
-    <style>${sliderStyle(sldID, ease)}</style>`;
+    <style>${sliderStyle(sldID, ease, isB64)}</style>`;
 }
 
-function sliderStyle(id, ease) {
+function sliderStyle(id, ease, isB64) {
     const s = `#sld-${id}`;
+    const b64Styles = isB64 ? `
+${s} .slide img.sld-b64{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;object-fit:contain;background:#0a0a0c}` : '';
+    
     return `
 ${s}{--sld-radius:16px;--sld-edge:rgba(255,255,255,.10);--sld-shadow:0 18px 60px rgba(0,0,0,.20);--sld-shadow2:0 10px 30px rgba(0,0,0,.16);--sld-ui-bg:rgba(18,18,20,.55);--sld-ui-bg2:rgba(255,255,255,.10);--sld-ui-stroke:rgba(255,255,255,.16);--sld-ui-text:#fff;--sld-ease:${ease};position:relative;width:100%;height:100%;overflow:hidden;border-radius:var(--sld-radius);background:radial-gradient(120% 120% at 10% 0%, rgba(255,255,255,.08), transparent 60%),linear-gradient(180deg, rgba(10,10,12,1), rgba(10,10,12,1));box-shadow:var(--sld-shadow);isolation:isolate}
 ${s}:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 10%, rgba(0,0,0,.10), transparent 55%),linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.35));mix-blend-mode:multiply;opacity:.85;z-index:2}
@@ -58,6 +63,7 @@ ${s} .slide{flex-shrink:0;min-width:0;height:100%;display:flex;align-items:stret
 ${s} .slide img{width:100%;height:100%;object-fit:cover;display:block;transform:translateZ(0)}
 ${s} .slide img.sld-img{cursor:pointer;transition:transform .45s var(--sld-ease),filter .45s var(--sld-ease);filter:saturate(1.02) contrast(1.02)}
 ${s} .slide img.sld-img:active{transform:scale(.99)}
+${b64Styles}
 
 ${s} .sld-btn{position:absolute;top:50%;transform:translateY(-50%);border:none;cursor:pointer;padding:0;z-index:10;border-radius:999px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;color:var(--sld-ui-text);background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));box-shadow:0 10px 28px rgba(0,0,0,.35);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);outline:none;transition:transform .2s ease,background .2s ease,box-shadow .2s ease,opacity .2s ease}
 ${s} .sld-btn svg{display:block;opacity:.95}
@@ -85,6 +91,7 @@ ${s} .dot.active{width:22px;background:rgba(255,255,255,.92);opacity:1;box-shado
 .sld-fs-modal .sld-track{position:absolute;inset:0;display:flex;transition:transform .7s ${ease};height:100%;will-change:transform}
 .sld-fs-modal .slide{flex-shrink:0;min-width:0;height:100%;display:flex;align-items:stretch;justify-content:stretch;background:#0a0a0c}
 .sld-fs-modal .slide img{width:100%;height:100%;object-fit:contain;display:block}
+.sld-fs-modal .slide img.sld-b64{image-rendering:pixelated;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges}
 .sld-fs-modal .sld-btn{position:absolute;top:50%;transform:translateY(-50%);border:none;cursor:pointer;padding:0;z-index:10;border-radius:999px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.08));color:#fff;box-shadow:0 16px 40px rgba(0,0,0,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .2s ease,background .2s ease,box-shadow .2s ease}
 .sld-fs-modal .sld-btn:hover{background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.10));transform:translateY(-50%) scale(1.06);box-shadow:0 18px 44px rgba(0,0,0,.52)}
 .sld-fs-modal .sld-btn:active{transform:translateY(-50%) scale(.98)}
@@ -106,7 +113,7 @@ ${s} .dot.active{width:22px;background:rgba(255,255,255,.92);opacity:1;box-shado
 }`;
 }
 
-function initSlider(sldID, dataset, ease) {
+function initSlider(sldID, dataset, ease, isB64) {
     const container = document.querySelector(`#sld-${sldID}`);
     if (!container) return;
     const track = container.querySelector('.sld-track');
@@ -195,7 +202,10 @@ function initSlider(sldID, dataset, ease) {
 
         let fsSlides = '';
         fsSlides += `<div class="slide"><img src="${dataset[total - 1]}" alt=""></div>`;
-        dataset.forEach((img) => { fsSlides += `<div class="slide"><img src="${img}" alt=""></div>`; });
+        dataset.forEach((img) => { 
+            const imgClass = isB64 ? 'sld-b64' : '';
+            fsSlides += `<div class="slide"><img src="${img}" alt="" class="${imgClass}"></div>`; 
+        });
         fsSlides += `<div class="slide"><img src="${dataset[0]}" alt=""></div>`;
 
         modal.innerHTML = `
