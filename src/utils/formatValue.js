@@ -348,7 +348,7 @@ const FormatValue = {
      * @param {number} decimals - Знаков после запятой (по умолчанию: 2)
      * @returns {string} Сокращенное число
      */
-    fshortval(value, decimals = 2) {
+    fshortval(value, decimals = 2, unit = 'auto', showLabel = true) {
         if (value === null || value === undefined || value === '') {
             return '-';
         }
@@ -363,13 +363,62 @@ const FormatValue = {
         
         const absValue = Math.abs(num);
         
-        if (absValue >= 1.0e+15) return `${(num / 1.0e+15).toFixed(decimals)} квадр`;
-        if (absValue >= 1.0e+12) return `${(num / 1.0e+12).toFixed(decimals)} трлн`;
-        if (absValue >= 1.0e+9) return `${(num / 1.0e+9).toFixed(decimals)} млрд`;
-        if (absValue >= 1.0e+6) return `${(num / 1.0e+6).toFixed(decimals)} млн`;
-        if (absValue >= 1.0e+3) return `${(num / 1.0e+3).toFixed(decimals)} тыс`;
+        // Функция для форматирования числа с отступами
+        const formatWithSpaces = (val) => {
+            const parts = val.split('.');
+            // Добавляем разделители тысяч
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+            return parts.join(',');
+        };
         
-        return num.toFixed(decimals);
+        // Если указана конкретная единица измерения
+        if (unit !== 'auto') {
+            const units = {
+                'тыс': 1.0e+3,
+                'млн': 1.0e+6,
+                'млрд': 1.0e+9,
+                'трлн': 1.0e+12,
+                'квадр': 1.0e+15
+            };
+            
+            const divisor = units[unit];
+            if (divisor) {
+                const formattedValue = (num / divisor).toFixed(decimals);
+                const formattedWithSpaces = formatWithSpaces(formattedValue);
+                return showLabel ? `${formattedWithSpaces} ${unit}` : formattedWithSpaces;
+            }
+        }
+        
+        // Автоматический выбор (старая логика)
+        if (absValue >= 1.0e+15) {
+            const formatted = (num / 1.0e+15).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} квадр` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+12) {
+            const formatted = (num / 1.0e+12).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} трлн` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+9) {
+            const formatted = (num / 1.0e+9).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} млрд` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+6) {
+            const formatted = (num / 1.0e+6).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} млн` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+3) {
+            const formatted = (num / 1.0e+3).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} тыс` : formattedWithSpaces;
+        }
+        
+        // Для чисел меньше 1000 тоже добавляем отступы, если нужно
+        const formatted = num.toFixed(decimals);
+        return formatWithSpaces(formatted);
     }
 };
 

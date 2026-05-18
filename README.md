@@ -4,8 +4,8 @@
 <p align="left">
     <img src="https://img.shields.io/badge/version-1.0.1-blue" alt="Version">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
-    <img src="https://img.shields.io/badge/minified-58559%20bytes-brightgreen" alt="Size">
-    <img src="https://img.shields.io/badge/compression-60.8%25-orange" alt="Compression">
+    <img src="https://img.shields.io/badge/minified-67031%20bytes-brightgreen" alt="Size">
+    <img src="https://img.shields.io/badge/compression-62.3%25-orange" alt="Compression">
     <a href="https://github.com/mizuki666/prxz"><img src="https://img.shields.io/badge/github-mizuki666-black" alt="GitHub"></a>
 </p>
 
@@ -17,12 +17,12 @@
 ## Статистика сборки
 
 - **Версия**: 1.0.1
-- **Дата сборки**: 04.05.2026, 06:20:09
-- **ID сборки**: `19df1a4dedc`
-- **Файлов обработано**: 24
-- **Размер исходный**: 149,329 байт
-- **Размер минифицированный**: 58,559 байт
-- **Сжатие**: 60.8%
+- **Дата сборки**: 15.05.2026, 11:47:51
+- **ID сборки**: `19e2b76d54f`
+- **Файлов обработано**: 30
+- **Размер исходный**: 177,783 байт
+- **Размер минифицированный**: 67,031 байт
+- **Сжатие**: 62.3%
 
 ## Установка
 
@@ -34,7 +34,7 @@
 
 ---
 
-> Собрано: 2026-05-04T06:20:09.837Z
+> Собрано: 2026-05-15T11:47:51.703Z
 > Бандлер: [bundler/](bundler/)
 > Файлов с ошибками: 0
 

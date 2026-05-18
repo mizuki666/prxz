@@ -1096,6 +1096,7 @@ function tableStyles(prefix, options = {}) {
   --tbl-border: rgba(255,255,255,.08);
   --tbl-text: rgba(255,255,255,.92);
   --tbl-text-muted: rgba(255,255,255,.65);
+  --tbl-row-selected-bg: #555a89;
   background: rgb(18 32 66 / 0.71);
 }
 
@@ -1142,7 +1143,7 @@ ${hoverRows ? `.${prefix}-tbody .${prefix}-row-clickable:hover {
 }` : ''}
 .${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected,
 .${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected.${prefix}-tr-odd {
-  background: #555a89 !important;
+  background: var(--tbl-row-selected-bg) !important;
 }
 .${prefix}-td.${prefix}-td-selected {
   background: var(--tbl-cell-selected-bg) !important;

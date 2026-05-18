@@ -127,6 +127,37 @@ async function getShedulersMore(accessToken, dataShedulers, moreInfoLink) {
                     modifiedBy: null
                 });
             }
+            const moreInfoPermission = await fetch(`${moreInfoLink}${sheduler.id}/permission-mappings`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Обработка успешного ответа
+            if (moreInfoPermission.ok) {
+                const moreInfoData = await moreInfoPermission.json();
+                console.log(moreInfoData,'moreInfoData')
+                // Добавляем обогащенный шедулер в результат
+                // shedulersWithMoreInfo.push({
+                //     ...sheduler, // Сохраняем оригинальные данные
+                //     name: moreInfoData.name || null,             // Название из API или null
+                //     modifiedTime: moreInfoData.modifiedTime || null, // Время изменения
+                //     modifiedBy: moreInfoData.modifiedBy || null     // Автор изменений
+                // });
+            } else {
+                // Обработка HTTP ошибок (4xx, 5xx)
+                console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+                
+                // Добавляем шедулер с null значениями при ошибке API
+                // shedulersWithMoreInfo.push({
+                //     ...sheduler,
+                //     name: null,
+                //     modifiedTime: null,
+                //     modifiedBy: null
+                // });
+            }
         } catch (error) {
             // Обработка сетевых ошибок и исключений
             console.error(`Ошибка при получении информации для шедулера ${sheduler.id}:`, error);

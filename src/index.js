@@ -5,6 +5,7 @@ import { FilterReplaceText } from './utils/filterText.js';
 import { genId } from './utils/genId.js';
 import { renderSlider } from './components/slider/index.js';
 import { renderTable } from './components/table/index.js';
+import { cronParser } from './utils/cronParser.js';
 
 import visi from './api/indexVisi.js';
 
@@ -21,7 +22,8 @@ const prxz = {
     func: {
         other: {
             FilterReplaceText,
-            genId
+            genId,
+            cronParser
         },
     },
     comp: {

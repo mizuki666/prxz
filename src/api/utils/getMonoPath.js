@@ -67,6 +67,8 @@ function getMonoPath() {
     const shedulersLink = 'https://' + domain + 
         '/data-management-service/api/v1/workspaces/' + workspaceId + 
         '/scheduled-refresh/GetAll';
+    const tablesLink = 'https://' + domain + 
+        '/data-management-service/api/v1/workspaces/' + workspaceId;
     
     const dashesLink = 'https://' + domain + 
         '/dashboard-service/api/workspaces/' + workspaceId + 
@@ -81,6 +83,11 @@ function getMonoPath() {
     
     const keyPath = 'oidc.user:https://' + domain + 
         '/keycloak/realms/Visiology:visiology_designer';
+
+    const rlsRows = 'https://' + domain + 
+    '/formula-engine/api/v1/workspaces/' + workspaceId + 
+    '/datasets/'
+
     
     // Собираем все сгенерированные пути в единый объект
     const path = {
@@ -88,6 +95,8 @@ function getMonoPath() {
         dashesLink,       // API дашбордов
         moreInfoLink,     // API детальной информации
         workspaceAllLink, // API рабочих пространств
+        tablesLink,       // API получения табличек
+        rlsRows,          // API RLS ROWS
         keyPath          // Ключ для токена
     };
     

@@ -176,6 +176,106 @@ export class Bundler {
         }
     }
 
+    /**
+     * Надежное удаление директории с несколькими методами
+     * @param {string} dirPath - Путь к директории
+     * @returns {Promise<boolean>} - Успешность удаления
+     */
+    async safeRemoveDirectory(dirPath) {
+        if (!fs.existsSync(dirPath)) {
+            return true;
+        }
+
+        // Метод 1: Стандартное удаление
+        try {
+            fs.rmSync(dirPath, { recursive: true, force: true, maxRetries: 5 });
+            Logger.info('Dist cleared with rmSync');
+            return true;
+        } catch (rmError) {
+            Logger.warning(`rmSync failed: ${rmError.message}`);
+        }
+
+        // Метод 2: Удаление содержимого по файлам
+        try {
+            const files = fs.readdirSync(dirPath);
+            for (const file of files) {
+                const filePath = join(dirPath, file);
+                try {
+                    fs.rmSync(filePath, { recursive: true, force: true });
+                } catch (fileError) {
+                    Logger.warning(`Could not delete ${file}: ${fileError.message}`);
+                }
+            }
+            // Пробуем удалить пустую папку
+            try {
+                fs.rmdirSync(dirPath);
+            } catch (rmdirError) {
+                // Игнорируем ошибку удаления папки
+            }
+            Logger.info('Dist contents cleared manually');
+            return true;
+        } catch (readError) {
+            Logger.warning(`Could not read dist directory: ${readError.message}`);
+        }
+
+        // Метод 3: Использование shell команд
+        try {
+            const { execSync } = await import('child_process');
+            const isWindows = process.platform === 'win32';
+            
+            if (isWindows) {
+                execSync(`rmdir /s /q "${dirPath}"`, { stdio: 'ignore' });
+            } else {
+                execSync(`rm -rf "${dirPath}"`, { stdio: 'ignore' });
+            }
+            Logger.info('Dist cleared via shell command');
+            return true;
+        } catch (shellError) {
+            Logger.warning(`Shell cleanup failed: ${shellError.message}`);
+        }
+
+        // Метод 4: Переименование и отложенное удаление
+        try {
+            const tempDir = `${dirPath}_${Date.now()}_to_delete`;
+            fs.renameSync(dirPath, tempDir);
+            
+            // Асинхронно удаляем переименованную папку
+            setTimeout(() => {
+                try {
+                    fs.rmSync(tempDir, { recursive: true, force: true });
+                } catch (err) {
+                    // Игнорируем ошибки при отложенном удалении
+                }
+            }, 100);
+            
+            Logger.info('Dist renamed and scheduled for deletion');
+            return true;
+        } catch (renameError) {
+            Logger.warning(`Rename failed: ${renameError.message}`);
+        }
+
+        return false;
+    }
+
+    /**
+     * Безопасная запись файла (удаляет существующий если есть)
+     * @param {string} filePath - Путь к файлу
+     * @param {string} content - Содержимое
+     * @param {string} encoding - Кодировка
+     */
+    safeWriteFile(filePath, content, encoding = 'utf8') {
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+            fs.writeFileSync(filePath, content, encoding);
+            return true;
+        } catch (error) {
+            Logger.error(`Failed to write file ${filePath}: ${error.message}`);
+            throw error;
+        }
+    }
+
     async build(generateReadme = true, tests = true) {
         const time = Logger.getTime();
         
@@ -194,10 +294,17 @@ export class Bundler {
             const srcDir = resolve('src');
             
             Logger.step(2, tests ? 7 : 6, 'PURGING PREVIOUS BUILD');
-            if (fs.existsSync(distDir)) {
-                fs.rmSync(distDir, { recursive: true, force: true });
-                Logger.info('Dist cleared');
+            
+            // Надежное удаление dist
+            const removed = await this.safeRemoveDirectory(distDir);
+            if (!removed) {
+                Logger.warning('Could not completely remove dist directory, but continuing...');
             }
+            
+            // Небольшая пауза для освобождения файловой системы
+            await new Promise(resolve => setTimeout(resolve, 150));
+            
+            // Создаем папку заново
             fs.mkdirSync(distDir, { recursive: true });
             Logger.success('Dist created');
             
@@ -268,12 +375,12 @@ export class Bundler {
             }
             
             const header = `// prxz.js - Библиотека форматирования данных
-    // Версия ${this.version} | ${new Date().toISOString()}
-    // ${license} License | Compiled by Bundler
-    // Author: ${author}
-    ${repository ? `// Repository: ${repository}` : ''}
-    // Build ID: ${this.buildStats.buildId}
-    // =============================================\n\n`;
+// Версия ${this.version} | ${new Date().toISOString()}
+// ${license} License | Compiled by Bundler
+// Author: ${author}
+${repository ? `// Repository: ${repository}` : ''}
+// Build ID: ${this.buildStats.buildId}
+// =============================================\n\n`;
             
             const wrapper = `(function() {
         'use strict';\n\n`;
@@ -285,11 +392,12 @@ export class Bundler {
             
             Logger.step(4, tests ? 7 : 6, 'WRITING OUTPUT FILES');
             
+            // Записываем prxz.js
             const outputFile = join(distDir, 'prxz.js');
-            fs.writeFileSync(outputFile, fullContent, 'utf8');
+            this.safeWriteFile(outputFile, fullContent);
             Logger.success(`prxz.js (${Logger.formatNumber(fullContent.length)} bytes)`);
             
-            // Используем Terser для минификации
+            // Минификация с Terser
             Logger.info('Minifying with Terser...');
             const minifiedContent = await this.utils.minifyJS(fullContent);
             
@@ -309,7 +417,7 @@ export class Bundler {
                     .trim();
                 
                 const minFile = join(distDir, 'prxz.min.js');
-                fs.writeFileSync(minFile, finalMinifiedContent, 'utf8');
+                this.safeWriteFile(minFile, finalMinifiedContent);
                 Logger.success(`prxz.min.js (${Logger.formatNumber(finalMinifiedContent.length)} bytes, fallback)`);
                 
                 const compression = ((1 - finalMinifiedContent.length / fullContent.length) * 100).toFixed(1);
@@ -326,7 +434,7 @@ export class Bundler {
             } else {
                 finalMinifiedContent = minifiedContent;
                 const minFile = join(distDir, 'prxz.min.js');
-                fs.writeFileSync(minFile, finalMinifiedContent, 'utf8');
+                this.safeWriteFile(minFile, finalMinifiedContent);
                 Logger.success(`prxz.min.js (${Logger.formatNumber(finalMinifiedContent.length)} bytes)`);
                 
                 const compression = ((1 - finalMinifiedContent.length / fullContent.length) * 100).toFixed(1);
@@ -342,6 +450,7 @@ export class Bundler {
                 };
             }
             
+            // Вывод статистики
             console.log('\n' + Logger.createBox([
                 '\x1b[32m[✓]\x1b[0m BUILD COMPLETE',
                 `\x1b[90mVersion:   \x1b[0m ${this.version}`,
@@ -370,42 +479,48 @@ export class Bundler {
                 await readmeGenerator.writeToFile('README.md');
                 
                 // Также создаем небольшой README для папки dist
-                const distReadme = `
-    # Собранные файлы
-    
-    Эта папка содержит собранные версии библиотеки prxz.js.
-    
-    ## Файлы
-    
-    - **prxz.js** - Полная версия библиотеки с комментариями
-    - **prxz.min.js** - Минифицированная версия для продакшена (с использованием Terser)
-    
-    ## Использование
-    
-    ### Браузер
-    \`\`\`html
-    <script src="prxz.min.js"></script>
-    <script>
-      console.log(prxz.version); // "${this.version}"
-    </script>
-    \`\`\`
-    
-    ### Информация о сборке
-    - **Версия**: ${this.version}
-    - **Автор**: ${author}
-    - **Лицензия**: ${license}
-    - **Дата**: ${new Date().toLocaleString('ru-RU')}
-    - **ID**: ${this.buildStats.buildId}
-    - **Размер**: ${this.buildStats.minifiedSize} байт (минифицированный)
-    - **Сжатие**: ${this.buildStats.compressionRate}%
-    
-    ---
-    
-    > Собрано с помощью кастомного бандлера
-    > ${this.buildStats.timestamp}
-    `;
+                const distReadme = `# Собранные файлы
+
+Эта папка содержит собранные версии библиотеки prxz.js.
+
+## Файлы
+
+- **prxz.js** - Полная версия библиотеки с комментариями
+- **prxz.min.js** - Минифицированная версия для продакшена (с использованием Terser)
+
+## Использование
+
+### Браузер
+\`\`\`html
+<script src="prxz.min.js"></script>
+<script>
+  console.log(prxz.version); // "${this.version}"
+</script>
+\`\`\`
+
+### Node.js (ES modules)
+\`\`\`javascript
+import prxz from './dist/prxz.js';
+// или
+const prxz = require('./dist/prxz.js');
+\`\`\`
+
+### Информация о сборке
+- **Версия**: ${this.version}
+- **Автор**: ${author}
+- **Лицензия**: ${license}
+- **Дата**: ${new Date().toLocaleString('ru-RU')}
+- **ID сборки**: ${this.buildStats.buildId}
+- **Размер**: ${this.buildStats.minifiedSize} байт (минифицированный)
+- **Сжатие**: ${this.buildStats.compressionRate}%
+
+---
+
+> Собрано с помощью кастомного бандлера
+> ${this.buildStats.timestamp}
+`;
                 
-                fs.writeFileSync(join(distDir, 'README.md'), distReadme, 'utf8');
+                this.safeWriteFile(join(distDir, 'README.md'), distReadme);
                 Logger.success('Dist README created');
             }
 
@@ -437,9 +552,9 @@ export class Bundler {
                     // Запускаем тесты
                     await runTests();
                 } catch (testError) {
-                    
                     // Не прерываем процесс, просто показываем ошибку
                     this.buildStats.testError = testError.message;
+                    Logger.error(`Tests failed: ${testError.message}`);
                 }
             }
             

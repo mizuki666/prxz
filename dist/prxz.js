@@ -1,17 +1,17 @@
 // prxz.js - Библиотека форматирования данных
-    // Версия 1.0.1 | 2026-05-04T06:20:07.285Z
-    // MIT License | Compiled by Bundler
-    // Author: mizuki666
-    // Repository: https://github.com/mizuki666/prxz
-    // Build ID: 19df1a4dedc
-    // =============================================
+// Версия 1.0.1 | 2026-05-15T11:47:48.868Z
+// MIT License | Compiled by Bundler
+// Author: mizuki666
+// Repository: https://github.com/mizuki666/prxz
+// Build ID: 19e2b76d54f
+// =============================================
 
 (function() {
         'use strict';
 
 
-// [06:20:07] LOAD: ./utils/formatValue.js
-// [06:20:07] LOAD: ./helpers/values/validators.js
+// [11:47:48] LOAD: ./utils/formatValue.js
+// [11:47:48] LOAD: ./helpers/values/validators.js
 // validators.js
 const Validators = {
     isEmptyValue: (value) => {
@@ -53,7 +53,7 @@ const Validators = {
 // [EOF]: ./helpers/values/validators.js
 ;
 
-// [06:20:07] LOAD: ./helpers/values/parsers.js
+// [11:47:48] LOAD: ./helpers/values/parsers.js
 // parsers.js
 const Parsers = {
     // Карта нелатинских цифр → латинские.
@@ -163,9 +163,9 @@ Parsers;
 // [EOF]: ./helpers/values/parsers.js
 ;
 
-// [06:20:07] LOAD: ./helpers/values/formatters.js
+// [11:47:48] LOAD: ./helpers/values/formatters.js
 // formatters.js
-// [06:20:07] SKIP (already loaded): ./validators.js
+// [11:47:48] SKIP (already loaded): ./validators.js
 ;
 
 const Formatters = {
@@ -617,7 +617,7 @@ const FormatValue = {
      * @param {number} decimals - Знаков после запятой (по умолчанию: 2)
      * @returns {string} Сокращенное число
      */
-    fshortval(value, decimals = 2) {
+    fshortval(value, decimals = 2, unit = 'auto', showLabel = true) {
         if (value === null || value === undefined || value === '') {
             return '-';
         }
@@ -632,13 +632,62 @@ const FormatValue = {
         
         const absValue = Math.abs(num);
         
-        if (absValue >= 1.0e+15) return `${(num / 1.0e+15).toFixed(decimals)} квадр`;
-        if (absValue >= 1.0e+12) return `${(num / 1.0e+12).toFixed(decimals)} трлн`;
-        if (absValue >= 1.0e+9) return `${(num / 1.0e+9).toFixed(decimals)} млрд`;
-        if (absValue >= 1.0e+6) return `${(num / 1.0e+6).toFixed(decimals)} млн`;
-        if (absValue >= 1.0e+3) return `${(num / 1.0e+3).toFixed(decimals)} тыс`;
+        // Функция для форматирования числа с отступами
+        const formatWithSpaces = (val) => {
+            const parts = val.split('.');
+            // Добавляем разделители тысяч
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u202F');
+            return parts.join(',');
+        };
         
-        return num.toFixed(decimals);
+        // Если указана конкретная единица измерения
+        if (unit !== 'auto') {
+            const units = {
+                'тыс': 1.0e+3,
+                'млн': 1.0e+6,
+                'млрд': 1.0e+9,
+                'трлн': 1.0e+12,
+                'квадр': 1.0e+15
+            };
+            
+            const divisor = units[unit];
+            if (divisor) {
+                const formattedValue = (num / divisor).toFixed(decimals);
+                const formattedWithSpaces = formatWithSpaces(formattedValue);
+                return showLabel ? `${formattedWithSpaces} ${unit}` : formattedWithSpaces;
+            }
+        }
+        
+        // Автоматический выбор (старая логика)
+        if (absValue >= 1.0e+15) {
+            const formatted = (num / 1.0e+15).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} квадр` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+12) {
+            const formatted = (num / 1.0e+12).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} трлн` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+9) {
+            const formatted = (num / 1.0e+9).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} млрд` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+6) {
+            const formatted = (num / 1.0e+6).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} млн` : formattedWithSpaces;
+        }
+        if (absValue >= 1.0e+3) {
+            const formatted = (num / 1.0e+3).toFixed(decimals);
+            const formattedWithSpaces = formatWithSpaces(formatted);
+            return showLabel ? `${formattedWithSpaces} тыс` : formattedWithSpaces;
+        }
+        
+        // Для чисел меньше 1000 тоже добавляем отступы, если нужно
+        const formatted = num.toFixed(decimals);
+        return formatWithSpaces(formatted);
     }
 };
 
@@ -646,8 +695,8 @@ const FormatValue = {
 // [EOF]: ./utils/formatValue.js
 ;
 
-// [06:20:07] LOAD: ./utils/formatDate.js
-// [06:20:07] LOAD: ./helpers/date/parse-date.js
+// [11:47:48] LOAD: ./utils/formatDate.js
+// [11:47:48] LOAD: ./helpers/date/parse-date.js
 /**
  * Парсит дату и проверяет валидность
  * @param {string|Date} dateInput - Дата для парсинга
@@ -666,7 +715,7 @@ function parseDate(dateInput) {
 // [EOF]: ./helpers/date/parse-date.js
 ;
 
-// [06:20:07] LOAD: ./helpers/date/convert-time.js
+// [11:47:48] LOAD: ./helpers/date/convert-time.js
 /**
  * Конвертирует дату в московское время (UTC+3)
  * @param {Date} date - Исходная дата
@@ -679,7 +728,7 @@ function convertToMoscowTime(date) {
 // [EOF]: ./helpers/date/convert-time.js
 ;
 
-// [06:20:07] LOAD: ./helpers/date/localization.js
+// [11:47:48] LOAD: ./helpers/date/localization.js
 /**
  * Возвращает русские названия месяцев и дней недели
  * @returns {Object} Локализованные строки
@@ -703,7 +752,7 @@ function getLocalizedStrings() {
 // [EOF]: ./helpers/date/localization.js
 ;
 
-// [06:20:07] LOAD: ./helpers/date/apply-format.js
+// [11:47:48] LOAD: ./helpers/date/apply-format.js
 /**
  * Применяет формат к дате
  * @param {Date} date - Дата для форматирования
@@ -837,8 +886,8 @@ const FormatDate = {
 // [EOF]: ./utils/formatDate.js
 ;
 
-// [06:20:07] LOAD: ./components/log/Logger.js
-// [06:20:07] LOAD: ./LoggerStyle.js
+// [11:47:48] LOAD: ./components/log/Logger.js
+// [11:47:48] LOAD: ./LoggerStyle.js
 const LoggerStyles = {
     API_REQUEST: 'background: #0057ff; color: white; padding: 2px 6px; border-radius: 3px',
     API_REQUEST_TEXT: 'color: #0057ff',
@@ -1077,7 +1126,7 @@ const Logger = {
 // [EOF]: ./components/log/Logger.js
 ;
 
-// [06:20:07] LOAD: ./utils/filterText.js
+// [11:47:48] LOAD: ./utils/filterText.js
 /**
  * Форматирует дату/время в указанный формат
  * @param {string|Date} dateString - Дата для форматирования
@@ -1109,7 +1158,7 @@ function FilterReplaceText(time,text,id) {
 // [EOF]: ./utils/filterText.js
 ;
 
-// [06:20:07] LOAD: ./utils/genId.js
+// [11:47:48] LOAD: ./utils/genId.js
 function genId() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
@@ -1120,9 +1169,9 @@ function genId() {
 // [EOF]: ./utils/genId.js
 ;
 
-// [06:20:07] LOAD: ./components/slider/index.js
-// [06:20:07] LOAD: ./Slider.js
-// [06:20:07] SKIP (already loaded): ../../utils/genId.js
+// [11:47:48] LOAD: ./components/slider/index.js
+// [11:47:48] LOAD: ./Slider.js
+// [11:47:48] SKIP (already loaded): ../../utils/genId.js
 ;
 
 const EASE = 'cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -1446,13 +1495,13 @@ function initSlider(sldID, dataset, ease, isB64) {
 // [EOF]: ./components/slider/index.js
 ;
 
-// [06:20:07] LOAD: ./components/table/index.js
-// [06:20:07] LOAD: ./Table.js
-// [06:20:07] SKIP (already loaded): ../../utils/genId.js
+// [11:47:48] LOAD: ./components/table/index.js
+// [11:47:48] LOAD: ./Table.js
+// [11:47:48] SKIP (already loaded): ../../utils/genId.js
 ;
-// [06:20:07] SKIP (already loaded): ../../utils/formatValue.js
+// [11:47:48] SKIP (already loaded): ../../utils/formatValue.js
 ;
-// [06:20:07] SKIP (already loaded): ../../utils/formatDate.js
+// [11:47:48] SKIP (already loaded): ../../utils/formatDate.js
 ;
 
 const DEFAULT_MIN_COL_WIDTH = 'auto';
@@ -2549,6 +2598,7 @@ function tableStyles(prefix, options = {}) {
   --tbl-border: rgba(255,255,255,.08);
   --tbl-text: rgba(255,255,255,.92);
   --tbl-text-muted: rgba(255,255,255,.65);
+  --tbl-row-selected-bg: #555a89;
   background: rgb(18 32 66 / 0.71);
 }
 
@@ -2595,7 +2645,7 @@ ${hoverRows ? `.${prefix}-tbody .${prefix}-row-clickable:hover {
 }` : ''}
 .${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected,
 .${prefix}-tbody .${prefix}-tr.${prefix}-tr-selected.${prefix}-tr-odd {
-  background: #555a89 !important;
+  background: var(--tbl-row-selected-bg) !important;
 }
 .${prefix}-td.${prefix}-td-selected {
   background: var(--tbl-cell-selected-bg) !important;
@@ -2833,9 +2883,287 @@ function initTableEvents(wrapEl, tableId, prefix, data, cfg) {
 // [EOF]: ./components/table/index.js
 ;
 
+// [11:47:48] LOAD: ./utils/cronParser.js
+/**
+ * Парсер cron выражений
+ * Преобразует cron выражение в читаемое описание для пользователя
+ * 
+ * @param {string} cronExpression - cron выражение (5 или 6 полей)
+ * @returns {string} человекочитаемое описание
+ * 
+ */
 
-// [06:20:07] LOAD: ./api/indexVisi.js
-// [06:20:07] LOAD: ./visiology/getMetricsMono
+function cronParser(cronExpression) {
+  const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 
+                  'июля', 'августа', 'сентябре', 'октября', 'ноября', 'декабря'];
+  const DAYS = ['воскресенье', 'понедельник', 'вторник', 'среда', 
+                'четверг', 'пятница', 'суббота'];
+  const DAYS_SHORT = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+
+  if (!cronExpression) return '';
+
+  const parts = cronExpression.trim().split(/\s+/);
+  if (parts.length < 5) return 'Неверный формат cron';
+
+  const [minutes, hours, dayOfMonth, month, dayOfWeek] = parts;
+
+  /**
+   * Парсит поле cron
+   */
+  function parseField(field, type) {
+    // Каждое значение
+    if (field === '*') {
+      return { type: 'every' };
+    }
+
+    // Список значений
+    if (field.includes(',') && !field.includes('/')) {
+      const values = field.split(',').map(v => {
+        const num = parseInt(v);
+        return isNaN(num) ? v : num;
+      });
+      return { type: 'list', values };
+    }
+
+    // Шаг
+    if (field.includes('/')) {
+      const [range, step] = field.split('/');
+      const stepNum = parseInt(step);
+      
+      if (range === '*') {
+        return { type: 'step', step: stepNum, start: 0 };
+      }
+      
+      if (range.includes('-')) {
+        const [start, end] = range.split('-').map(Number);
+        return { type: 'step', step: stepNum, start, end };
+      }
+      
+      return { type: 'step', step: stepNum, start: parseInt(range) };
+    }
+
+    // Диапазон
+    if (field.includes('-')) {
+      const [start, end] = field.split('-').map(v => {
+        const num = parseInt(v);
+        return isNaN(num) ? v : num;
+      });
+      return { type: 'range', start, end };
+    }
+
+    // Конкретное значение
+    const num = parseInt(field);
+    return { 
+      type: 'exact', 
+      value: isNaN(num) ? field.toUpperCase() : num 
+    };
+  }
+
+  /**
+   * Форматирует минуты
+   */
+  function formatMinutes(minutesField) {
+    const parsed = parseField(minutesField, 'minutes');
+    
+    if (parsed.type === 'every') return '';
+    if (parsed.type === 'step') {
+      if (parsed.step === 1 || !parsed.start) return `Каждую минуту`;
+      return `Каждые ${parsed.step} минут`;
+    }
+    if (parsed.type === 'exact') {
+      return `${parsed.value} минут(а/ы)`;
+    }
+    if (parsed.type === 'list') {
+      return `В минуты: ${parsed.values.join(', ')}`;
+    }
+    if (parsed.type === 'range') {
+      return `С ${parsed.start} по ${parsed.end} минуту`;
+    }
+    return '';
+  }
+
+  /**
+   * Форматирует часы
+   */
+  function formatHours(hoursField) {
+    const parsed = parseField(hoursField, 'hours');
+    
+    if (parsed.type === 'every') return '';
+    if (parsed.type === 'step') {
+      if (parsed.step === 1) return 'Каждый час';
+      return `Каждые ${parsed.step} часа(ов)`;
+    }
+    if (parsed.type === 'exact') {
+      return `в ${String(parsed.value).padStart(2, '0')}:00`;
+    }
+    if (parsed.type === 'list') {
+      const formatted = parsed.values.map(v => `${String(v).padStart(2, '0')}:00`);
+      return `В ${formatted.join(', ')}`;
+    }
+    if (parsed.type === 'range') {
+      return `с ${String(parsed.start).padStart(2, '0')}:00 до ${String(parsed.end).padStart(2, '0')}:00`;
+    }
+    return '';
+  }
+
+  /**
+   * Форматирует дни месяца
+   */
+  function formatDayOfMonth(field) {
+    const parsed = parseField(field, 'dayOfMonth');
+    
+    if (parsed.type === 'every') return '';
+    if (parsed.type === 'exact') {
+      return `${parsed.value} числа`;
+    }
+    if (parsed.type === 'list') {
+      return `${parsed.values.join(', ')} числа`;
+    }
+    if (parsed.type === 'range') {
+      return `с ${parsed.start} по ${parsed.end} число`;
+    }
+    if (parsed.type === 'step') {
+      return `каждые ${parsed.step} дня`;
+    }
+    return '';
+  }
+
+  /**
+   * Форматирует месяцы
+   */
+  function formatMonth(field) {
+    const parsed = parseField(field, 'month');
+    
+    if (parsed.type === 'every') return '';
+    if (parsed.type === 'exact') {
+      if (typeof parsed.value === 'string') {
+        const idx = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 
+                    'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'].indexOf(parsed.value);
+        return idx !== -1 ? MONTHS[idx] : parsed.value;
+      }
+      return MONTHS[parsed.value - 1];
+    }
+    if (parsed.type === 'list') {
+      return parsed.values.map(v => {
+        if (typeof v === 'string') {
+          const idx = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 
+                      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'].indexOf(v);
+          return idx !== -1 ? MONTHS[idx] : v;
+        }
+        return MONTHS[v - 1];
+      }).join(', ');
+    }
+    if (parsed.type === 'range') {
+      const start = typeof parsed.start === 'string' ? parsed.start : MONTHS[parsed.start - 1];
+      const end = typeof parsed.end === 'string' ? parsed.end : MONTHS[parsed.end - 1];
+      return `с ${start} по ${end}`;
+    }
+    if (parsed.type === 'step') {
+      return `каждые ${parsed.step} месяца`;
+    }
+    return '';
+  }
+
+  /**
+   * Форматирует дни недели
+   */
+  function formatDayOfWeek(field) {
+    const parsed = parseField(field, 'dayOfWeek');
+    
+    if (parsed.type === 'every') return '';
+    if (parsed.type === 'exact') {
+      if (typeof parsed.value === 'string') {
+        const idx = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+                      .indexOf(parsed.value);
+        return idx !== -1 ? DAYS[idx] : parsed.value;
+      }
+      return DAYS[parsed.value];
+    }
+    if (parsed.type === 'list') {
+      return parsed.values.map(v => {
+        if (typeof v === 'string') {
+          const idx = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
+                        .indexOf(v);
+          return idx !== -1 ? DAYS_SHORT[idx] : v;
+        }
+        return DAYS_SHORT[v];
+      }).join(', ');
+    }
+    if (parsed.type === 'range') {
+      const start = typeof parsed.start === 'string' ? parsed.start : DAYS[parsed.start];
+      const end = typeof parsed.end === 'string' ? parsed.end : DAYS[parsed.end];
+      return `с ${start} по ${end}`;
+    }
+    return '';
+  }
+
+  // Строим итоговое описание
+  const parts_desc = [];
+  
+  const minDesc = formatMinutes(minutes);
+  const hourDesc = formatHours(hours);
+  const dayMonDesc = formatDayOfMonth(dayOfMonth);
+  const monDesc = formatMonth(month);
+  const dayWeekDesc = formatDayOfWeek(dayOfWeek);
+
+  // Собираем время
+  let timeStr = '';
+  if (hourDesc && minDesc) {
+    const hour = hours !== '*' ? parseInt(hours) : 0;
+    const min = minutes !== '*' ? parseInt(minutes) : 0;
+    timeStr = `В ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+  } else if (hourDesc) {
+    timeStr = hourDesc;
+  } else if (minDesc) {
+    timeStr = minDesc;
+  }
+
+  if (timeStr) parts_desc.push(timeStr);
+
+  // Дни недели
+  if (dayWeekDesc) {
+    parts_desc.push(`по ${dayWeekDesc}`);
+  }
+
+  // Дни месяца
+  if (dayMonDesc) {
+    parts_desc.push(dayMonDesc);
+  }
+
+  // Месяцы
+  if (monDesc) {
+    parts_desc.push(monDesc);
+  }
+
+  // Особые случаи
+  if (minutes === '*' && hours === '*' && dayOfMonth === '*' && 
+      month === '*' && dayOfWeek === '*') {
+    return 'Каждую минуту';
+  }
+
+  if (minutes === '0' && hours === '0' && dayOfMonth === '*' && 
+      month === '*' && dayOfWeek === '*') {
+    return 'Каждый день в полночь';
+  }
+
+  if (minutes === '*/5' && hours === '*' && dayOfMonth === '*' && 
+      month === '*' && dayOfWeek === '*') {
+    return 'Каждые 5 минут';
+  }
+
+  if (minutes === '0' && /^\d+$/.test(hours) && dayOfMonth === '*' && 
+      month === '*' && dayOfWeek === '*' && parseInt(hours) >= 0 && parseInt(hours) <= 23) {
+    return `Каждый день в ${String(parseInt(hours)).padStart(2, '0')}:00`;
+  }
+
+  return parts_desc.join(', ') || 'Каждую минуту';
+}
+// [EOF]: ./utils/cronParser.js
+;
+
+
+// [11:47:48] LOAD: ./api/indexVisi.js
+// [11:47:48] LOAD: ./visiology/getMetricsMono
 /**
  * Получает метрики мониторинга из одной рабочей области (в которой находится)
  * 
@@ -2865,7 +3193,7 @@ function initTableEvents(wrapEl, tableId, prefix, data, cfg) {
  */
 
 
-// [06:20:07] LOAD: ../utils/getAccessToken
+// [11:47:48] LOAD: ../utils/getAccessToken
 /**
  * Извлекает access token из sessionStorage по указанному ключу
  * 
@@ -2937,7 +3265,7 @@ function getAccessToken(p) {
 // [EOF]: ../utils/getAccessToken
 ;
 
-// [06:20:07] LOAD: ../utils/getMonoPath
+// [11:47:48] LOAD: ../utils/getMonoPath
 /**
  * Формирует URL-адреса для доступа к API на основе текущего домена и workspaceId
  * 
@@ -3007,6 +3335,8 @@ function getMonoPath() {
     const shedulersLink = 'https://' + domain + 
         '/data-management-service/api/v1/workspaces/' + workspaceId + 
         '/scheduled-refresh/GetAll';
+    const tablesLink = 'https://' + domain + 
+        '/data-management-service/api/v1/workspaces/' + workspaceId;
     
     const dashesLink = 'https://' + domain + 
         '/dashboard-service/api/workspaces/' + workspaceId + 
@@ -3021,6 +3351,11 @@ function getMonoPath() {
     
     const keyPath = 'oidc.user:https://' + domain + 
         '/keycloak/realms/Visiology:visiology_designer';
+
+    const rlsRows = 'https://' + domain + 
+    '/formula-engine/api/v1/workspaces/' + workspaceId + 
+    '/datasets/'
+
     
     // Собираем все сгенерированные пути в единый объект
     const path = {
@@ -3028,6 +3363,8 @@ function getMonoPath() {
         dashesLink,       // API дашбордов
         moreInfoLink,     // API детальной информации
         workspaceAllLink, // API рабочих пространств
+        tablesLink,       // API получения табличек
+        rlsRows,          // API RLS ROWS
         keyPath          // Ключ для токена
     };
     
@@ -3038,7 +3375,7 @@ function getMonoPath() {
 // [EOF]: ../utils/getMonoPath
 ;
 
-// [06:20:07] LOAD: ../utils/groupDatasets
+// [11:47:48] LOAD: ../utils/groupDatasets
 /**
  * Группирует шедулеры с привязанными к ним дашбордами
  * Создает структуру "один шедулер → множество дашбордов" для удобства анализа
@@ -3097,7 +3434,7 @@ function groupDatasets(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/groupDatasets
 ;
 
-// [06:20:07] LOAD: ../utils/checkDeadShedulers
+// [11:47:48] LOAD: ../utils/checkDeadShedulers
 /**
  * Проверяет и идентифицирует "мертвые" шедулеры (неработающие планировщики)
  * 
@@ -3164,7 +3501,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
 // [EOF]: ../utils/checkDeadShedulers
 ;
 
-// [06:20:07] LOAD: ../utils/getShedulersMore
+// [11:47:48] LOAD: ../utils/getShedulersMore
 /**
  * Обогащает данные шедулеров дополнительной информацией из API
  * 
@@ -3216,7 +3553,7 @@ function checkerDeadshedulers(shedulersWithMoreInfo, dataDashboards) {
  * - При сетевых ошибках возвращает null значения и логирует ошибку
  * - Не прерывает выполнение при ошибках отдельных шедулеров
  */
-// [06:20:07] SKIP (already loaded): ./getMonoPath.js
+// [11:47:48] SKIP (already loaded): ./getMonoPath.js
 ;
 
 async function getShedulersMore(accessToken, dataShedulers, moreInfoLink) {
@@ -3294,6 +3631,37 @@ async function getShedulersMore(accessToken, dataShedulers, moreInfoLink) {
                     modifiedTime: null,
                     modifiedBy: null
                 });
+            }
+            const moreInfoPermission = await fetch(`${moreInfoLink}${sheduler.id}/permission-mappings`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Обработка успешного ответа
+            if (moreInfoPermission.ok) {
+                const moreInfoData = await moreInfoPermission.json();
+                console.log(moreInfoData,'moreInfoData')
+                // Добавляем обогащенный шедулер в результат
+                // shedulersWithMoreInfo.push({
+                //     ...sheduler, // Сохраняем оригинальные данные
+                //     name: moreInfoData.name || null,             // Название из API или null
+                //     modifiedTime: moreInfoData.modifiedTime || null, // Время изменения
+                //     modifiedBy: moreInfoData.modifiedBy || null     // Автор изменений
+                // });
+            } else {
+                // Обработка HTTP ошибок (4xx, 5xx)
+                console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+                
+                // Добавляем шедулер с null значениями при ошибке API
+                // shedulersWithMoreInfo.push({
+                //     ...sheduler,
+                //     name: null,
+                //     modifiedTime: null,
+                //     modifiedBy: null
+                // });
             }
         } catch (error) {
             // Обработка сетевых ошибок и исключений
@@ -3399,16 +3767,465 @@ async function getMetricsMono() {
 ;
 // [EOF]: ./visiology/getMetricsMono
 
-// [06:20:07] SKIP (already loaded): ./utils/getAccessToken
 
-// [06:20:07] SKIP (already loaded): ./utils/getShedulersMore
+// [11:47:48] LOAD: ./visiology/getMetricsCurrent
+/**
+ * Получает метрики мониторинга только для текущего дашборда
+ * 
+ * @async
+ * @function getMetricsCurrent
+ * @param {string|number} currentDashboardId - ID текущего дашборда
+ * @returns {Promise<Object>} Объект с данными только текущего дашборда
+ */
 
-// [06:20:07] SKIP (already loaded): ./utils/groupDatasets
+// [11:47:48] SKIP (already loaded): ../utils/getAccessToken
+;
+// [11:47:48] SKIP (already loaded): ../utils/getMonoPath
+;
+
+// [11:47:48] LOAD: ../utils/getMonoShedulerMore
+/**
+ * Обогащает данные шедулеров дополнительной информацией из API
+ * 
+ * Функция последовательно запрашивает детальную информацию для каждого шедулера,
+ * добавляя поля name, modifiedTime и modifiedBy. Для исключения перегрузки API
+ * добавляет задержки между запросами.
+ * 
+ * @async
+ * @function getMonoShedulerMore
+ * @param {string} accessToken - JWT токен для авторизации запросов к API
+ * @param {Array} dataShedulers - Массив шедулеров для обогащения
+ * @param {Object} dataShedulers[] - Объект шедулера
+ * @param {string} dataShedulers[].id - Уникальный идентификатор шедулера
+ * @param {boolean} dataShedulers[].isEnabled - Флаг активности шедулера
+ * @param {string} [moreInfoLink] - Базовый URL для запросов детальной информации. Если не передан — будет получен через getMonoPath().
+ * 
+ * @returns {Promise<Array>} Массив обогащенных данных шедулеров с дополнительными полями:
+ * @returns {Object} returns[] - Обогащенный объект шедулера
+ * @returns {string|null} returns[].name - Название шедулера
+ * @returns {string|null} returns[].modifiedTime - Время последнего изменения
+ * @returns {string|null} returns[].modifiedBy - Идентификатор пользователя, внесшего изменения
+ * 
+ * @throws Не выбрасывает исключения наружу, ошибки обрабатываются внутри и логируются
+ * 
+ * @example
+ * const accessToken = 'eyJhbGciOiJ...';
+ * const sheddulers = [{ id: 'sched-1', isEnabled: true }];
+ * const enriched = await getMonoShedulerMore(accessToken, sheddulers);
+ * // enriched = [{ id: 'sched-1', isEnabled: true, name: 'Daily Report', ... }]
+ * 
+ * @algorithm
+ * 1. Инициализация результирующего массива
+ * 2. Последовательная обработка каждого шедулера:
+ *    a. Пропуск запроса для отключенных шедулеров
+ *    b. Добавление задержки между запросами (кроме первого)
+ *    c. Выполнение запроса к API
+ *    d. Обработка успешного ответа
+ *    e. Обработка ошибок и HTTP ошибок
+ * 3. Возврат обогащенных данных
+ * 
+ * @performance
+ * - Линейная сложность O(n), где n - количество шедулеров
+ * - Общее время выполнения ≈ (n-1) * 20ms + n * время_запроса
+ * - Использует rate limiting (задержки) для защиты API
+ * 
+ * @errorHandling
+ * - Для отключенных шедулеров сразу возвращает null значения
+ * - При HTTP ошибках возвращает null значения и логирует предупреждение
+ * - При сетевых ошибках возвращает null значения и логирует ошибку
+ * - Не прерывает выполнение при ошибках отдельных шедулеров
+ */
+
+async function getMonoShedulerMore(accessToken, id_scheduler, moreInfoLink) {
+
+
+    if (moreInfoLink == null || moreInfoLink === '') {
+        throw new Error('getMonoShedulerMore: moreInfoLink is required');
+    }
+
+    // Инициализация массива для хранения обогащенных данных
+    const shedulersWithMoreInfo = [];
+    
+    // Временные логи для отладки (раскомментировать при необходимости)
+    // console.log('Внутри getMonoShedulerMore');
+    // console.log(id_scheduler, 'id_scheduler');
+
+    // Выполняем запрос к API для получения детальной информации
+    const moreInfoResponse = await fetch(`${moreInfoLink}${id_scheduler}/model`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Обработка успешного ответа
+    if (moreInfoResponse.ok) {
+        const moreInfoData = await moreInfoResponse.json();
+        // Добавляем обогащенный шедулер в результат
+        return moreInfoData
+    } else {
+        // Обработка HTTP ошибок (4xx, 5xx)
+        console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+    }
+
+    // Выполняем запрос к API для получения детальной информации
+    const permissionsDataset = await fetch(`${moreInfoLink}${id_scheduler}/per`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Обработка успешного ответа
+    if (permissionsDataset.ok) {
+        const moreInfoData = await permissionsDataset.json();
+        // Добавляем обогащенный шедулер в результат
+        return moreInfoData
+    } else {
+        // Обработка HTTP ошибок (4xx, 5xx)
+        console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+    }
+}
+
+;
+// [EOF]: ../utils/getMonoShedulerMore
+;
+
+// [11:47:48] LOAD: ../utils/getPermissionsDataset
+/**
+ * Обогащает данные шедулеров дополнительной информацией из API
+ * 
+ * Функция последовательно запрашивает детальную информацию для каждого шедулера,
+ * добавляя поля name, modifiedTime и modifiedBy. Для исключения перегрузки API
+ * добавляет задержки между запросами.
+ */
+
+async function getPermissionsDataset(accessToken, id_scheduler, moreInfoLink) {
+
+
+    if (moreInfoLink == null || moreInfoLink === '') {
+        throw new Error('getMonoShedulerMore: moreInfoLink is required');
+    }
+
+    // Выполняем запрос к API для получения детальной информации
+    const permissionsDataset = await fetch(`${moreInfoLink}${id_scheduler}/permission-mappings`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Обработка успешного ответа
+    if (permissionsDataset.ok) {
+        const moreInfoData = await permissionsDataset.json();
+        // Добавляем обогащенный шедулер в результат
+        return moreInfoData
+    } else {
+        // Обработка HTTP ошибок (4xx, 5xx)
+        console.warn(`Не удалось получить дополнительную информацию для шедулера ${sheduler.id}`);
+    }
+}
+
+;
+// [EOF]: ../utils/getPermissionsDataset
+;
+
+// [11:47:48] LOAD: ../utils/getPermissionsDashboard
+/**
+ * Обогащает данные шедулеров дополнительной информацией из API
+ * 
+ * Функция последовательно запрашивает детальную информацию для каждого шедулера,
+ * добавляя поля name, modifiedTime и modifiedBy. Для исключения перегрузки API
+ * добавляет задержки между запросами.
+ */
+
+async function getPermissionsDashboard(accessToken, id_dashboard, dashesLink) {
+
+
+    if (dashesLink == null || dashesLink === '') {
+        throw new Error('getMonoShedulerMore: dashesLink is required');
+    }
+
+    // Выполняем запрос к API для получения детальной информации
+    const permissionsDataset = await fetch(`${dashesLink}/${id_dashboard}/permission-mappings`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+
+    // Обработка успешного ответа
+    if (permissionsDataset.ok) {
+        const moreInfoData = await permissionsDataset.json();
+        // Добавляем обогащенный шедулер в результат
+        return moreInfoData
+    } else {
+        // Обработка HTTP ошибок (4xx, 5xx)
+        console.warn(`Не удалось получить дополнительную информацию для шедулера ${id_dashboard}`);
+    }
+}
+
+;
+// [EOF]: ../utils/getPermissionsDashboard
+;
+
+// [11:47:48] LOAD: ../utils/getApiRLS
+/**
+ * Получает RLS-членства для каждой роли датасета
+ * @param {string} accessToken - токен доступа
+ * @param {object} dataset - объект датасета с id и массивом roles
+ * @param {string} rlsLink - базовый URL для запросов
+ * @returns {Promise<Array>} массив результатов RLS-членств с именами и временем
+ */
+async function getApiRLS(accessToken, dataset, rlsLink) {
+    const {id, roles} = dataset
+
+    if (rlsLink == null || rlsLink === '') {
+        throw new Error('getApiRLS: rlsLink is required');
+    }
+
+    if (roles.length === 0) {
+        return []
+    }
+
+    const results = await Promise.all(
+        roles.map(async (v) => {
+            const rlsGUID = v.id
+            const {modifiedTime, name} = v
+            
+            try {
+                const rlsDataset = await fetch(`${rlsLink}${id}/roles/${rlsGUID}/memberships?roleType=Rls`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (rlsDataset.ok) {
+                    const moreInfoData = await rlsDataset.json();
+                    // Возвращаем RLS данные вместе с именем и временем модификации роли
+                    return {
+                        roleName: name,
+                        modifiedTime: modifiedTime,
+                        rlsData: moreInfoData
+                    }
+                } else {
+                    console.warn(`Не удалось получить RLS для роли ${rlsGUID} (${name})`);
+                    return {
+                        roleName: name,
+                        modifiedTime: modifiedTime,
+                        rlsData: null,
+                        error: `HTTP ${rlsDataset.status}`
+                    }
+                }
+            } catch (error) {
+                console.error(`Ошибка при получении RLS для роли ${rlsGUID} (${name}):`, error);
+                return {
+                    roleName: name,
+                    modifiedTime: modifiedTime,
+                    rlsData: null,
+                    error: error.message
+                }
+            }
+        })
+    )
+
+    return results
+}
+
+;
+// [EOF]: ../utils/getApiRLS
+;
+
+async function getMetricsCurrent() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentDashboardId = urlParams.get('dashboardGuid');
+
+    // Получение конфигурационных путей
+    const path = getMonoPath();
+    const { shedulersLink, moreInfoLink, dashesLink, tablesLink, keyPath, rlsRows } = path;
+    
+    // Получение токена доступа для аутентификации
+    const token = getAccessToken(keyPath);
+    
+    // Параллельное выполнение запросов
+    const [responseShedulers, responseDashboards] = await Promise.all([
+        fetch(shedulersLink, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}, name: responseShedulers`);
+            }
+            return response;
+        }),
+        
+        fetch(dashesLink, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}, name: responseDashboards`);
+            }
+            return response;
+        })
+    ]);
+
+    // Парсинг JSON ответов
+    const [dataShedulers, dataDashboards] = await Promise.all([
+        responseShedulers.json(),
+        responseDashboards.json()
+    ]);
+
+    const indexSX = dataDashboards.findIndex(v => v.guid === currentDashboardId);
+
+    if (indexSX === -1) {
+        console.warn(`Dashboard with guid ${currentDashboardId} not found`);
+        return { indexSX: -1, schedulerSX: [] };
+    }
+    
+    const targetSX = dataDashboards[indexSX];
+    const targetSXdataset = targetSX.dataset.datasetId;
+    const targetSXGuid = targetSX.guid
+    const schedulerSX = targetSXdataset 
+        ? dataShedulers.filter(v => v.id === targetSXdataset)
+        : [];
+
+
+    const moreInfoDataset = await getMonoShedulerMore(token, schedulerSX[0].id, moreInfoLink);
+    const permissionsDataset = await getPermissionsDataset(token, schedulerSX[0].id, moreInfoLink)
+    const permissionDashboard = await getPermissionsDashboard(token, targetSXGuid, dashesLink)
+    const rlsDataset = await getApiRLS(token, moreInfoDataset, rlsRows)
+    
+    // Загружаем данные для всех таблиц
+    const tables = await fastTable(moreInfoDataset.tables, tablesLink, token);
+    
+    const dataset = { targetSX, schedulerSX, moreInfoDataset, tables, permissionsDataset, permissionDashboard, rlsDataset, dataDashboards};
+
+/**
+ * Асинхронно загружает данные для всех таблиц из источников CSV/Excel
+ * 
+ * @async
+ * @function fastTable
+ * @param {Array} tb - Массив таблиц для обработки
+ * @param {string} tablesLink - Базовый URL для запросов к таблицам
+ * @param {string} token - Токен аутентификации
+ * @param {string} targetSXdataset - ID целевого датасета
+ * @param {number} [concurrency=10] - Лимит параллельных запросов
+ * @returns {Promise<Array>} Массив таблиц, обогащенных полями tableData или error
+ * 
+ * @description
+ * Функция загружает данные для таблиц, содержащих TempTableName или файлы .csv.
+ * Запросы выполняются пакетами для предотвращения перегрузки сервера.
+ * В случае ошибки таблица сохраняется с полем error, выполнение не прерывается.
+ */
+
+    async function fastTable(tb, tablesLink, token) {
+        // Создаем массив промисов для параллельной загрузки данных всех таблиц
+        const tablePromises = tb.map(async (v) => {
+            try {
+                const source = JSON.parse(v.source);
+                const excel_id = source.DataSourceId
+
+                if (source.TempTableName || source.SourceTableName?.includes('.csv')) {
+
+                    const isCSV = source.SourceTableName?.includes('.csv')
+                    if(isCSV){
+                        const link = `${tablesLink}/datasets/${targetSXdataset}/datasources/CSV/${excel_id}`;
+
+                        const response = await fetch(link, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status} for table ${source.TempTableName}`);
+                        }
+
+                        const tableData = await response.json();
+
+                        // Возвращаем обогащенный объект таблицы с загруженными данными
+                        return {
+                            ...v,
+                            tableData: tableData,
+                        };
+                    } else {
+                        const link = `${tablesLink}/datasets/${targetSXdataset}/datasources/Excel/${excel_id}`;
+
+                        const response = await fetch(link, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${token}`,
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status} for table ${source.TempTableName}`);
+                        }
+
+                        const tableData = await response.json();
+                        
+                        // Возвращаем обогащенный объект таблицы с загруженными данными
+                        return {
+                            ...v,
+                            tableData: tableData,
+                        };
+                    }
+                }
+                
+                // Если нет TempTableName, возвращаем исходный объект
+                return {
+                    ...v,
+                    source: source
+                };
+                
+            } catch (error) {
+                console.error(`Error loading table data:`, error);
+                // В случае ошибки возвращаем исходный объект с информацией об ошибке
+                return {
+                    ...v,
+                    source: JSON.parse(v.source),
+                    error: error.message
+                };
+            }
+        });
+
+        // Ждем выполнения всех запросов параллельно
+        return await Promise.all(tablePromises);
+    }
+
+    return dataset;
+}
+
+;
+// [EOF]: ./visiology/getMetricsCurrent
+
+// [11:47:48] SKIP (already loaded): ./utils/getAccessToken
+
+// [11:47:48] SKIP (already loaded): ./utils/getShedulersMore
+
+// [11:47:48] SKIP (already loaded): ./utils/groupDatasets
 
 
 const visi = {
     final: {
-        getMetricsMono
+        getMetricsMono,
+        getMetricsCurrent
     }, 
     methods: {
         getAccessToken,
@@ -3434,7 +4251,8 @@ const prxz = {
     func: {
         other: {
             FilterReplaceText,
-            genId
+            genId,
+            cronParser
         },
     },
     comp: {
